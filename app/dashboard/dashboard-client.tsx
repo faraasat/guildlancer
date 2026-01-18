@@ -1,12 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Shield,
-  TrendingUp,
   Award,
   Target,
   Zap,
@@ -15,7 +16,14 @@ import {
   Clock,
   ArrowRight,
   Sparkles,
-  Activity
+  Activity,
+  Briefcase,
+  Bell,
+  MessageSquare,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Timer
 } from 'lucide-react';
 
 interface DashboardClientProps {
@@ -29,19 +37,83 @@ interface DashboardClientProps {
   };
 }
 
+// Mock data for missions
+const mockActiveMissions = [
+  {
+    id: 1,
+    title: 'Smart Contract Security Audit',
+    client: 'CryptoDAO',
+    reward: 15000,
+    deadline: '2 days',
+    progress: 65,
+    status: 'in-progress',
+  },
+  {
+    id: 2,
+    title: 'Mobile App UI Redesign',
+    client: 'TechCorp',
+    reward: 8500,
+    deadline: '5 days',
+    progress: 30,
+    status: 'in-progress',
+  },
+];
+
+const mockPostedBounties = [
+  {
+    id: 1,
+    title: 'Backend API Development',
+    applications: 5,
+    reward: 12000,
+    status: 'reviewing',
+    posted: '3 days ago',
+  },
+  {
+    id: 2,
+    title: 'Database Migration',
+    applications: 2,
+    reward: 6000,
+    status: 'active',
+    posted: '1 day ago',
+  },
+];
+
 export default function DashboardClient({ user }: DashboardClientProps) {
+  const [mode, setMode] = useState<'hunter' | 'client'>('hunter');
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-black font-heading mb-4">
-              Welcome back, <span className="text-gradient-primary">{user.username}</span>
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Your command center for all quest activities
-            </p>
+          {/* Header with Mode Toggle */}
+          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-black font-heading mb-2">
+                Welcome back, <span className="text-gradient-primary">{user.username}</span>
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                Your command center for all quest activities
+              </p>
+            </div>
+            
+            {/* Mode Toggle */}
+            <Card className="glass-strong border-2 border-primary/30 p-1 inline-flex">
+              <Button
+                variant={mode === 'hunter' ? 'default' : 'ghost'}
+                className={mode === 'hunter' ? 'glow-primary' : ''}
+                onClick={() => setMode('hunter')}
+              >
+                <Target className="mr-2 h-4 w-4" />
+                Hunter Mode
+              </Button>
+              <Button
+                variant={mode === 'client' ? 'default' : 'ghost'}
+                className={mode === 'client' ? 'glow-primary' : ''}
+                onClick={() => setMode('client')}
+              >
+                <Briefcase className="mr-2 h-4 w-4" />
+                Client Mode
+              </Button>
+            </Card>
           </div>
 
           {/* Quick Stats */}
@@ -83,31 +155,129 @@ export default function DashboardClient({ user }: DashboardClientProps) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Active Quests */}
-              <Card className="glass-strong border-2 border-primary/30 p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
-                    <Activity className="h-6 w-6 text-primary" />
-                    Active Quests
-                  </h2>
-                  <Button asChild variant="outline" className="border-primary/30">
-                    <Link href="/bounties">
-                      Browse All
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-                
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🎯</div>
-                  <h3 className="text-xl font-bold mb-2">No Active Quests</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Start your journey by accepting a quest
+              {/* Hunter Mode Content */}
+              {mode === 'hunter' && (
+                <>
+                  {/* Active Missions */}
+                  <Card className="glass-strong border-2 border-primary/30 p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold flex items-center gap-2">
+                        <Activity className="h-6 w-6 text-primary" />
+                        Active Missions
+                      </h2>
+                      <Button asChild variant="outline" className="border-primary/30">
+                        <Link href="/bounties">
+                          Browse All
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                    
+                    {mockActiveMissions.length > 0 ? (
+                      <div className="space-y-4">
+                        {mockActiveMissions.map((mission) => (
+                          <MissionCard key={mission.id} mission={mission} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-4">🎯</div>
+                        <h3 className="text-xl font-bold mb-2">No Active Missions</h3>
+                        <p className="text-muted-foreground mb-6">
+                          Start your journey by accepting a quest
+                        </p>
+                        <Button asChild className="glow-primary">
+                          <Link href="/bounties">
+                            <Target className="mr-2 h-4 w-4" />
+                            Find Quests
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+                  </Card>
+
+                  {/* Available Opportunities */}
+                  <Card className="glass-strong border-2 border-secondary/30 p-8">
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                      <Sparkles className="h-6 w-6 text-secondary" />
+                      Recommended for You
+                    </h2>
+                    <p className="text-muted-foreground">
+                      AI-powered recommendations coming soon...
+                    </p>
+                  </Card>
+                </>
+              )}
+
+              {/* Client Mode Content */}
+              {mode === 'client' && (
+                <>
+                  {/* Posted Bounties */}
+                  <Card className="glass-strong border-2 border-primary/30 p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-2xl font-bold flex items-center gap-2">
+                        <Briefcase className="h-6 w-6 text-primary" />
+                        My Posted Bounties
+                      </h2>
+                      <Button asChild className="glow-primary">
+                        <Link href="/bounties/create">
+                          Post New Bounty
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                    
+                    {mockPostedBounties.length > 0 ? (
+                      <div className="space-y-4">
+                        {mockPostedBounties.map((bounty) => (
+                          <BountyCard key={bounty.id} bounty={bounty} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-4">📋</div>
+                        <h3 className="text-xl font-bold mb-2">No Bounties Posted</h3>
+                        <p className="text-muted-foreground mb-6">
+                          Post your first bounty to find skilled hunters
+                        </p>
+                        <Button asChild className="glow-primary">
+                          <Link href="/bounties/create">
+                            <Target className="mr-2 h-4 w-4" />
+                            Post Bounty
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+                  </Card>
+
+                  {/* Applications */}
+                  <Card className="glass-strong border-2 border-accent/30 p-8">
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                      <Users className="h-6 w-6 text-accent" />
+                      Recent Applications
+                    </h2>
+                    <p className="text-muted-foreground text-center py-8">
+                      No pending applications
+                    </p>
+                  </Card>
+                </>
+              )}
+
+              {/* Guild Status - Shared */}
+              <Card className="glass-strong border-2 border-success/30 p-8">
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  <Users className="h-6 w-6 text-success" />
+                  Guild Status
+                </h2>
+                <div className="text-center py-8">
+                  <div className="text-5xl mb-4">⚔️</div>
+                  <p className="text-muted-foreground mb-4">
+                    You're not part of any guild yet
                   </p>
-                  <Button asChild className="glow-primary">
-                    <Link href="/bounties">
-                      <Target className="mr-2 h-4 w-4" />
-                      Find Quests
+                  <Button asChild variant="outline" className="border-success/30">
+                    <Link href="/guilds">
+                      Find a Guild
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
@@ -125,48 +295,55 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                     icon="✨"
                     title="Joined GuildLancer"
                     time="Today"
-                    color="success"
                   />
                   <ActivityItem
                     icon="🎁"
                     title="Received 1,000 welcome credits"
                     time="Today"
-                    color="warning"
                   />
+                  {mode === 'hunter' && mockActiveMissions.length > 0 && (
+                    <ActivityItem
+                      icon="⚔️"
+                      title={`Started mission: ${mockActiveMissions[0].title}`}
+                      time="2 hours ago"
+                    />
+                  )}
                 </div>
               </Card>
 
               {/* Getting Started */}
-              <Card className="glass-strong border-2 border-accent/30 p-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-accent" />
-                  Getting Started Guide
-                </h2>
-                
-                <div className="space-y-4">
-                  <GuidanceStep
-                    number={1}
-                    title="Complete Your Profile"
-                    description="Add your skills and bio to stand out"
-                    completed={false}
-                    href="/settings"
-                  />
-                  <GuidanceStep
-                    number={2}
-                    title="Join a Guild"
-                    description="Team up with other hunters for better opportunities"
-                    completed={false}
-                    href="/guilds"
-                  />
-                  <GuidanceStep
-                    number={3}
-                    title="Accept Your First Quest"
-                    description="Browse available bounties and start earning"
-                    completed={false}
-                    href="/bounties"
-                  />
-                </div>
-              </Card>
+              {mode === 'hunter' && mockActiveMissions.length === 0 && (
+                <Card className="glass-strong border-2 border-accent/30 p-8">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-accent" />
+                    Getting Started Guide
+                  </h2>
+                  
+                  <div className="space-y-4">
+                    <GuidanceStep
+                      number={1}
+                      title="Complete Your Profile"
+                      description="Add your skills and bio to stand out"
+                      completed={false}
+                      href="/settings"
+                    />
+                    <GuidanceStep
+                      number={2}
+                      title="Join a Guild"
+                      description="Team up with other hunters for better opportunities"
+                      completed={false}
+                      href="/guilds"
+                    />
+                    <GuidanceStep
+                      number={3}
+                      title="Accept Your First Quest"
+                      description="Browse available bounties and start earning"
+                      completed={false}
+                      href="/bounties"
+                    />
+                  </div>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -204,38 +381,49 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 </Button>
               </Card>
 
-              {/* Recommendations */}
-              <Card className="glass-strong border-2 border-secondary/30 p-6">
+              {/* Notifications */}
+              <Card className="glass-strong border-2 border-warning/30 p-6">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Star className="h-5 w-5 text-warning" />
-                  Recommended
+                  <Bell className="h-5 w-5 text-warning" />
+                  Notifications
+                  <Badge className="ml-auto bg-warning/20 text-warning border-warning/30">2</Badge>
                 </h3>
                 
-                <div className="space-y-4">
-                  <RecommendationCard
-                    title="Join Cyber Syndicate"
-                    description="Elite security guild accepting new members"
-                    badge="Top Guild"
-                    href="/guilds/1"
-                  />
-                  <RecommendationCard
-                    title="Explore Top Hunters"
-                    description="Learn from the best in the network"
-                    badge="Inspiration"
-                    href="/hunters"
-                  />
+                <div className="space-y-3">
+                  <div className="glass p-3 rounded-lg text-sm">
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-medium">Welcome to GuildLancer!</p>
+                        <p className="text-xs text-muted-foreground">Check out the getting started guide</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="glass p-3 rounded-lg text-sm">
+                    <div className="flex items-start gap-2">
+                      <Star className="h-4 w-4 text-warning mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-medium">Bonus Credits Added</p>
+                        <p className="text-xs text-muted-foreground">1,000 credits added to your account</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                
+                <Button variant="ghost" className="w-full mt-4 text-xs">
+                  View All Notifications
+                </Button>
               </Card>
 
-              {/* Quick Links */}
+              {/* Quick Actions */}
               <Card className="glass-strong border-2 border-accent/30 p-6">
                 <h3 className="text-xl font-bold mb-4">Quick Links</h3>
                 
                 <div className="space-y-2">
-                  <QuickLink href="/bounties" icon={<Target />} label="Browse Bounties" />
+                  <QuickLink href={mode === 'hunter' ? '/bounties' : '/bounties/create'} icon={<Target />} label={mode === 'hunter' ? 'Browse Bounties' : 'Post Bounty'} />
                   <QuickLink href="/guilds" icon={<Users />} label="Find Guilds" />
-                  <QuickLink href="/hunters" icon={<Award />} label="Top Hunters" />
-                  <QuickLink href="/about" icon={<Sparkles />} label="How It Works" />
+                  <QuickLink href="/analytics" icon={<TrendingUp />} label="View Analytics" />
+                  <QuickLink href="/payments" icon={<Zap />} label="Manage Credits" />
                 </div>
               </Card>
             </div>
@@ -246,7 +434,109 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   );
 }
 
-function StatCard({ icon, label, value, change, trend, color }: any) {
+// Mission Card Component
+function MissionCard({ mission }: { mission: any }) {
+  return (
+    <div className="glass p-6 rounded-lg border-2 border-primary/20 hover:border-primary/40 transition-all group">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <h3 className="text-xl font-bold group-hover:text-primary transition-colors mb-2">
+            {mission.title}
+          </h3>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Briefcase className="h-4 w-4" />
+              {mission.client}
+            </span>
+            <span className="flex items-center gap-1">
+              <Timer className="h-4 w-4" />
+              {mission.deadline} left
+            </span>
+          </div>
+        </div>
+        <Badge className="bg-warning/20 text-warning border-warning/30 shrink-0">
+          {mission.reward.toLocaleString()} credits
+        </Badge>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Progress</span>
+          <span className="font-bold text-primary">{mission.progress}%</span>
+        </div>
+        <div className="h-2 bg-background/50 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-primary to-secondary transition-all"
+            style={{ width: `${mission.progress}%` }}
+          />
+        </div>
+      </div>
+      
+      <div className="flex gap-3 mt-4">
+        <Button variant="outline" className="flex-1 border-primary/30" size="sm">
+          View Details
+        </Button>
+        <Button className="flex-1 glow-primary" size="sm">
+          Continue Work
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Bounty Card Component
+function BountyCard({ bounty }: { bounty: any }) {
+  const statusColors = {
+    reviewing: 'text-warning border-warning/30 bg-warning/10',
+    active: 'text-success border-success/30 bg-success/10',
+    completed: 'text-primary border-primary/30 bg-primary/10',
+  };
+
+  return (
+    <div className="glass p-6 rounded-lg border-2 border-primary/20 hover:border-primary/40 transition-all group">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <h3 className="text-xl font-bold group-hover:text-primary transition-colors mb-2">
+            {bounty.title}
+          </h3>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              Posted {bounty.posted}
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              {bounty.applications} applications
+            </span>
+          </div>
+        </div>
+        <Badge className={statusColors[bounty.status as keyof typeof statusColors]}>
+          {bounty.status}
+        </Badge>
+      </div>
+      
+      <div className="flex items-center justify-between pt-4 border-t border-primary/20">
+        <div className="text-sm">
+          <span className="text-muted-foreground">Reward:</span>{' '}
+          <span className="font-bold text-warning">{bounty.reward.toLocaleString()} credits</span>
+        </div>
+        <Button variant="outline" className="border-primary/30" size="sm">
+          Manage
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value, change, trend, color }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  change: string;
+  trend: 'up' | 'down' | 'neutral';
+  color: 'primary' | 'secondary' | 'success' | 'warning';
+}) {
   const colorClasses = {
     primary: 'text-primary border-primary/30',
     secondary: 'text-secondary border-secondary/30',
@@ -272,7 +562,7 @@ function StatCard({ icon, label, value, change, trend, color }: any) {
   );
 }
 
-function ActivityItem({ icon, title, time, color }: any) {
+function ActivityItem({ icon, title, time }: { icon: string; title: string; time: string }) {
   return (
     <div className="flex items-center gap-4 p-3 glass rounded-lg">
       <div className="text-3xl">{icon}</div>
@@ -284,7 +574,13 @@ function ActivityItem({ icon, title, time, color }: any) {
   );
 }
 
-function GuidanceStep({ number, title, description, completed, href }: any) {
+function GuidanceStep({ number, title, description, completed, href }: {
+  number: number;
+  title: string;
+  description: string;
+  completed: boolean;
+  href: string;
+}) {
   return (
     <Link href={href}>
       <div className="flex gap-4 p-4 glass rounded-lg hover:border-accent/30 border border-transparent transition-all group">
@@ -297,7 +593,12 @@ function GuidanceStep({ number, title, description, completed, href }: any) {
           <div className="font-bold mb-1 group-hover:text-accent transition-colors">{title}</div>
           <div className="text-sm text-muted-foreground">{description}</div>
         </div>
-        <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+        <ArrowRight className="h-5 w-5 text-muted-foreground grou{
+  title: string;
+  description: string;
+  badge: string;
+  href: string;
+}over:text-accent group-hover:translate-x-1 transition-all" />
       </div>
     </Link>
   );
@@ -313,7 +614,7 @@ function RecommendationCard({ title, description, badge, href }: any) {
             {badge}
           </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-sm text-muted-f{ href: string; icon: React.ReactNode; label: string }ground">{description}</p>
       </div>
     </Link>
   );

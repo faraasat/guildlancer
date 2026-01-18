@@ -3,7 +3,17 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Protected routes that require authentication
-const protectedRoutes = ['/dashboard', '/profile', '/settings', '/my-quests'];
+const protectedRoutes = [
+  '/dashboard',
+  '/profile',
+  '/settings',
+  '/analytics',
+  '/history',
+  '/payments',
+  '/guild',
+  '/messages',
+  '/my-quests'
+];
 
 // Routes that logged-in users shouldn't access
 const authRoutes = ['/login', '/register'];
@@ -30,7 +40,9 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Use nodejs runtime instead of edge to support crypto module
 export const config = {
+  runtime: 'nodejs',
   matcher: [
     /*
      * Match all request paths except:

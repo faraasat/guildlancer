@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, Sparkles, Zap, User, LogOut } from 'lucide-react';
+import { Menu, X, Sparkles, Zap, User, LogOut, LayoutDashboard, TrendingUp, Clock, Wallet, Users, MessageSquare, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSession, signOut } from 'next-auth/react';
-import { Avatar } from '@/components/ui/avatar';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,7 +42,7 @@ export function Navbar() {
                 className="text-foreground/80 hover:text-primary transition-colors text-sm font-medium relative group"
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
           </div>
@@ -52,18 +51,55 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && session?.user ? (
               <>
-                <Link
-                  href="/dashboard"
-                  className="text-foreground/80 hover:text-primary transition-colors text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
                 <div className="relative group">
                   <Button variant="ghost" className="border border-primary/20 hover:border-primary/40 gap-2">
                     <div className="text-2xl">{session.user.avatar || '👤'}</div>
-                    <span className="max-w-[100px] truncate">{session.user.username}</span>
+                    <span className="max-w-25 truncate">{session.user.username}</span>
                   </Button>
-                  <div className="absolute right-0 top-full mt-2 w-48 glass-strong border-2 border-primary/30 rounded-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <div className="absolute right-0 top-full mt-2 w-56 glass-strong border-2 border-primary/30 rounded-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/analytics"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      Analytics
+                    </Link>
+                    <Link
+                      href="/history"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <Clock className="h-4 w-4" />
+                      History
+                    </Link>
+                    <Link
+                      href="/payments"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <Wallet className="h-4 w-4" />
+                      Payments
+                    </Link>
+                    <Link
+                      href="/guild"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <Users className="h-4 w-4" />
+                      Guild
+                    </Link>
+                    <Link
+                      href="/messages"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
+                    </Link>
+                    <div className="my-1 border-t border-primary/20" />
                     <Link
                       href="/profile"
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
@@ -71,6 +107,14 @@ export function Navbar() {
                       <User className="h-4 w-4" />
                       Profile
                     </Link>
+                    <Link
+                      href="/settings"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                    <div className="my-1 border-t border-primary/20" />
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-destructive/10 rounded transition-colors w-full text-left text-destructive"
@@ -89,15 +133,87 @@ export function Navbar() {
                 <Button asChild className="glow-primary border border-primary/50">
                   <Link href="/register" className="flex items-center gap-2">
                     <Zap className="h-4 w-4" />
-              
-              {isAuthenticated && session?.user && (
+                    Enter Network
+                  </Link>
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden text-foreground p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X className="h-7 w-7" />
+            ) : (
+              <Menu className="h-7 w-7" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-primary/20">
+            <div className="flex flex-col gap-3">
+              {navLinks.map((link) => (
                 <Link
-                  href="/dashboard"
+                  key={link.href}
+                  href={link.href}
                   className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  {link.label}
                 </Link>
+              ))}
+              
+              {isAuthenticated && session?.user && (
+                <>
+                  <div className="border-t border-primary/20 pt-3" />
+                  <Link
+                    href="/dashboard"
+                    className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/analytics"
+                    className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Analytics
+                  </Link>
+                  <Link
+                    href="/history"
+                    className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    History
+                  </Link>
+                  <Link
+                    href="/payments"
+                    className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Payments
+                  </Link>
+                  <Link
+                    href="/guild"
+                    className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Guild
+                  </Link>
+                  <Link
+                    href="/messages"
+                    className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Messages
+                  </Link>
+                </>
               )}
 
               <div className="flex flex-col gap-2 pt-3 border-t border-primary/20">
@@ -111,6 +227,12 @@ export function Navbar() {
                       <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
                         <User className="mr-2 h-4 w-4" />
                         Profile
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild className="border-primary/30">
+                      <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
                       </Link>
                     </Button>
                     <Button 
@@ -140,40 +262,6 @@ export function Navbar() {
                     </Button>
                   </>
                 )}
-            {mobileMenuOpen ? (
-              <X className="h-7 w-7" />
-            ) : (
-              <Menu className="h-7 w-7" />
-            )}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-primary/20">
-            <div className="flex flex-col gap-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all py-3 px-4 rounded-lg font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="flex flex-col gap-2 pt-3 border-t border-primary/20">
-                <Button variant="outline" asChild className="border-primary/30">
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    Login
-                  </Link>
-                </Button>
-                <Button asChild className="glow-primary">
-                  <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2">
-                    <Zap className="h-4 w-4" />
-                    Enter Network
-                  </Link>
-                </Button>
               </div>
             </div>
           </div>

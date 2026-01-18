@@ -16,6 +16,7 @@ export interface IUser {
   guildRole?: 'Guild Master' | 'Elite Hunter' | 'Senior Hunter' | 'Hunter' | 'Initiate';
   clientReputation: number;
   hunterReputation: number;
+  clientRating: number; // Average client rating (0-1)
   completedQuests: number;
   activeQuests: number;
   createdAt: Date;
@@ -95,6 +96,12 @@ const UserSchema = new Schema<IUser>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    clientRating: {
+      type: Number,
+      default: 0.7, // Default 70% rating
+      min: 0,
+      max: 1,
     },
     completedQuests: {
       type: Number,
