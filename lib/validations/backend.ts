@@ -125,3 +125,27 @@ export type TribunalVoteInput = z.infer<typeof tribunalVoteSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export type BountyFilters = z.infer<typeof bountyFiltersSchema>;
 export type GuildFilters = z.infer<typeof guildFiltersSchema>;
+
+// AI Agent validation schemas
+export const matchBountySchema = z.object({
+  bountyId: z.string().min(1, 'Bounty ID is required'),
+});
+
+export const analyzeDisputeSchema = z.object({
+  disputeId: z.string().min(1, 'Dispute ID is required'),
+});
+
+export const detectAnomaliesSchema = z.object({
+  days: z.number().min(1).max(30).default(7),
+  minRiskScore: z.number().min(0).max(100).default(60),
+});
+
+export const generateInsightsSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+});
+
+export type MatchBountyInput = z.infer<typeof matchBountySchema>;
+export type AnalyzeDisputeInput = z.infer<typeof analyzeDisputeSchema>;
+export type DetectAnomaliesInput = z.infer<typeof detectAnomaliesSchema>;
+export type GenerateInsightsInput = z.infer<typeof generateInsightsSchema>;
+
