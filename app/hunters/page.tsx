@@ -6,105 +6,71 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-// Mock data for hunters - Diverse real-world bounty hunters
-const mockHunters = [
-  {
-    id: 1,
-    name: 'Tracker Morgan',
-    avatar: '🔍',
-    tagline: 'Missing Persons & Asset Recovery Specialist',
-    guild: 'Apex Trackers',
-    trustScore: 99.2,
-    rank: 'Legendary',
-    completedQuests: 143,
-    specialties: ['Missing Persons', 'Asset Recovery', 'Investigation'],
-    powerLevel: 3456,
-    color: 'primary'
-  },
-  {
-    id: 2,
-    name: 'Agent Cipher',
-    avatar: '🕵️',
-    tagline: 'Digital Forensics Expert',
-    guild: 'Digital Forensics Unit',
-    trustScore: 98.8,
-    rank: 'Legendary',
-    completedQuests: 128,
-    specialties: ['Forensic Analysis', 'Cyber Crime', 'Evidence Recovery'],
-    powerLevel: 3287,
-    color: 'secondary'
-  },
-  {
-    id: 3,
-    name: 'Veritas',
-    avatar: '⚖️',
-    tagline: 'Fact Checker & Verification Specialist',
-    guild: 'Truth Seekers',
-    trustScore: 98.5,
-    rank: 'Master',
-    completedQuests: 115,
-    specialties: ['Fact Verification', 'Background Checks', 'Due Diligence'],
-    powerLevel: 3142,
-    color: 'accent'
-  },
-  {
-    id: 4,
-    name: 'Shadow Wolf',
-    avatar: '🐺',
-    tagline: 'Fugitive Recovery Agent',
-    guild: 'Shadow Stalkers',
-    trustScore: 97.9,
-    rank: 'Master',
-    completedQuests: 98,
-    specialties: ['Fugitive Recovery', 'Surveillance', 'Skip Tracing'],
-    powerLevel: 2956,
-    color: 'success'
-  },
-  {
-    id: 5,
-    name: 'Neighborhood Hero',
-    avatar: '🦸',
-    tagline: 'Local Task & Assistance Expert',
-    guild: 'Local Heroes',
-    trustScore: 97.4,
-    rank: 'Master',
-    completedQuests: 92,
-    specialties: ['Local Errands', 'Community Help', 'Delivery'],
-    powerLevel: 2843,
-    color: 'warning'
-  },
-  {
-    id: 6,
-    name: 'InfoHawk',
-    avatar: '🦅',
-    tagline: 'OSINT & Intelligence Gatherer',
-    guild: 'InfoHawks',
-    trustScore: 96.8,
-    rank: 'Expert',
-    completedQuests: 87,
-    specialties: ['OSINT', 'Research', 'Intelligence Gathering'],
-    powerLevel: 2714,
-    color: 'primary'
-  }
-];
+interface Hunter {
+  _id: string;
+  username: string;
+  avatar: string;
+  bio?: string;
+  guildId?: {
+    _id: string;
+    name: string;
+    avatar: string;
+  };
+  trustScore: number;
+  rank: string;
+  completedQuests: number;
+  skills: string[];
+  hunterReputation: number;
+}
 
-const topSkills = [
-  { skill: 'Investigation', count: 234, color: 'primary' },
-  { skill: 'Verification', count: 189, color: 'secondary' },
-  { skill: 'Surveillance', count: 156, color: 'accent' },
-  { skill: 'Research', count: 142, color: 'success' },
-  { skill: 'Local Tasks', count: 128, color: 'warning' },
-  { skill: 'Forensics', count: 98, color: 'primary' },
-];
+interface Skill {
+  skill: string;
+  count: number;
+}
+
+const skillColors = ['primary', 'secondary', 'accent', 'success', 'warning'];
 
 export default function HuntersPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [hunters, setHunters] = useState<Hunter[]>([]);
+  const [topSkills, setTopSkills] = useState<Skill[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredHunters = mockHunters.filter(hunter =>
-    hunter.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    hunter.specialties.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [huntersRes, skillsRes] = await Promise.all([
+          fetch('/api/users?sort=trust&limit=50'),
+          fetch('/api/users/skills?limit=10')
+        ]);
+
+        if (!huntersRes.ok || !skillsRes.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const huntersData = await huntersRes.json();
+        const skillsData = await skillsRes.json();
+
+        setHunters(huntersData.users || []);
+        setTopSkills(skillsData || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const filteredHunters = hunters.filter(hunter =>
+    hunter.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    hunter.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (hunter.bio && hunter.bio.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -123,66 +89,96 @@ export default function HuntersPage() {
           </p>
         </div>
 
-        {/* Search */}
-        <div className="mb-12 max-w-2xl mx-auto">
-          <Card className="glass-strong p-4 border-2 border-secondary/30 tactical-scan">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-secondary" />
-              <Input
-                placeholder="Search hunters by name or skill..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background/50 border-secondary/30 focus:border-secondary"
-              />
-            </div>
-          </Card>
-        </div>
-
-        {/* Skills Cloud */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            <Sparkles className="inline h-6 w-6 text-primary mr-2" />
-            Top Skills in Network
-          </h2>
-          <div className="flex flex-wrap justify-center gap-3">
-            {topSkills.map((item) => (
-              <Badge 
-                key={item.skill}
-                className={`text-${item.color} border-${item.color}/40 bg-${item.color}/10 px-6 py-3 text-lg font-bold hover:scale-110 transition-transform cursor-pointer`}
-              >
-                {item.skill} <span className="ml-2 text-muted-foreground">({item.count})</span>
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* Top 3 Podium */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-8 text-center">
-            <Crown className="inline h-8 w-8 text-warning animate-pulse-glow mr-2" />
-            Top Ranked Hunters
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {mockHunters.slice(0, 3).map((hunter, idx) => (
-              <PodiumCard key={hunter.id} hunter={hunter} position={idx + 1} />
-            ))}
-          </div>
-        </div>
-
-        {/* All Hunters Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredHunters.map((hunter) => (
-            <HunterCard key={hunter.id} hunter={hunter} />
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredHunters.length === 0 && (
+        {/* Loading State */}
+        {loading && (
           <div className="text-center py-16">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-bold mb-2">No hunters found</h3>
-            <p className="text-muted-foreground">Try adjusting your search</p>
+            <div className="text-6xl mb-4 animate-pulse">⏳</div>
+            <h3 className="text-2xl font-bold mb-2">Loading hunters...</h3>
+            <p className="text-muted-foreground">Please wait</p>
           </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="text-center py-16">
+            <Card className="glass-strong border-destructive/30 p-8 max-w-md mx-auto">
+              <div className="text-5xl mb-4">⚠️</div>
+              <h3 className="text-2xl font-bold mb-2 text-destructive">Error Loading Data</h3>
+              <p className="text-muted-foreground">{error}</p>
+              <Button onClick={() => window.location.reload()} className="mt-4">
+                Retry
+              </Button>
+            </Card>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Search */}
+            <div className="mb-12 max-w-2xl mx-auto">
+              <Card className="glass-strong p-4 border-2 border-secondary/30 tactical-scan">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-secondary" />
+                  <Input
+                    placeholder="Search hunters by name or skill..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-background/50 border-secondary/30 focus:border-secondary"
+                  />
+                </div>
+              </Card>
+            </div>
+
+            {/* Skills Cloud */}
+            {topSkills.length > 0 && (
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold mb-6 text-center">
+                  <Sparkles className="inline h-6 w-6 text-primary mr-2" />
+                  Top Skills in Network
+                </h2>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {topSkills.map((item, index) => (
+                    <Badge 
+                      key={item.skill}
+                      className={`text-${skillColors[index % skillColors.length]} border-${skillColors[index % skillColors.length]}/40 bg-${skillColors[index % skillColors.length]}/10 px-6 py-3 text-lg font-bold hover:scale-110 transition-transform cursor-pointer`}
+                    >
+                      {item.skill} <span className="ml-2 text-muted-foreground">({item.count})</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Top 3 Podium */}
+            {filteredHunters.length >= 3 && (
+              <div className="mb-12">
+                <h2 className="text-3xl font-bold mb-8 text-center">
+                  <Crown className="inline h-8 w-8 text-warning animate-pulse-glow mr-2" />
+                  Top Ranked Hunters
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {filteredHunters.slice(0, 3).map((hunter, idx) => (
+                    <PodiumCard key={hunter._id} hunter={hunter} position={idx + 1} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* All Hunters Grid */}
+            {filteredHunters.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredHunters.map((hunter) => (
+                  <HunterCard key={hunter._id} hunter={hunter} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-2xl font-bold mb-2">No hunters found</h3>
+                <p className="text-muted-foreground">Try adjusting your search</p>
+              </div>
+            )}
+          </>
         )}
 
         {/* CTA Section */}
@@ -219,7 +215,7 @@ export default function HuntersPage() {
   );
 }
 
-function PodiumCard({ hunter, position }: { hunter: any; position: number }) {
+function PodiumCard({ hunter, position }: { hunter: Hunter; position: number }) {
   const heights = ['md:translate-y-8', '', 'md:translate-y-12'];
   const medals = ['🥇', '🥈', '🥉'];
   const glows = ['glow-primary', 'glow-secondary', 'glow-accent'];
@@ -233,13 +229,15 @@ function PodiumCard({ hunter, position }: { hunter: any; position: number }) {
       <div className="text-center space-y-4 pt-8">
         <div className="text-5xl mx-auto">{hunter.avatar}</div>
         <div>
-          <h3 className="text-2xl font-bold text-gradient-primary">{hunter.name}</h3>
-          <p className="text-sm text-muted-foreground">{hunter.guild}</p>
+          <h3 className="text-2xl font-bold text-gradient-primary">{hunter.username}</h3>
+          <p className="text-sm text-muted-foreground">
+            {hunter.guildId ? hunter.guildId.name : 'Independent'}
+          </p>
         </div>
         
         <div className="glass p-4 rounded-xl border border-primary/30">
           <div className="text-sm text-muted-foreground mb-1">Trust Score</div>
-          <div className="text-4xl font-black text-gradient-primary">{hunter.trustScore}%</div>
+          <div className="text-4xl font-black text-gradient-primary">{hunter.trustScore.toFixed(1)}%</div>
         </div>
         
         <div className="grid grid-cols-2 gap-3 text-sm">
@@ -248,8 +246,8 @@ function PodiumCard({ hunter, position }: { hunter: any; position: number }) {
             <div className="text-xl font-bold text-secondary">{hunter.completedQuests}</div>
           </div>
           <div className="glass p-3 rounded-lg">
-            <div className="text-muted-foreground mb-1">Power</div>
-            <div className="text-xl font-bold text-accent">{hunter.powerLevel}</div>
+            <div className="text-muted-foreground mb-1">Rep</div>
+            <div className="text-xl font-bold text-accent">{hunter.hunterReputation}</div>
           </div>
         </div>
       </div>
@@ -257,9 +255,9 @@ function PodiumCard({ hunter, position }: { hunter: any; position: number }) {
   );
 }
 
-function HunterCard({ hunter }: { hunter: any }) {
+function HunterCard({ hunter }: { hunter: Hunter }) {
   return (
-    <Link href={`/hunters/${hunter.id}`}>
+    <Link href={`/profile/${hunter._id}`}>
       <Card className="relative group overflow-hidden glass-strong border-2 border-primary/20 hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 tactical-scan">
         <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-secondary/10 opacity-50 group-hover:opacity-70 transition-opacity" />
         
@@ -269,9 +267,11 @@ function HunterCard({ hunter }: { hunter: any }) {
               <div className="text-4xl animate-float">{hunter.avatar}</div>
               <div>
                 <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-                  {hunter.name}
+                  {hunter.username}
                 </h3>
-                <p className="text-sm text-muted-foreground">{hunter.tagline}</p>
+                <p className="text-sm text-muted-foreground line-clamp-1">
+                  {hunter.bio || 'Elite Hunter'}
+                </p>
               </div>
             </div>
             <Badge className={`text-${hunter.rank === 'Legendary' ? 'warning' : 'primary'} border-${hunter.rank === 'Legendary' ? 'warning' : 'primary'}/40 bg-${hunter.rank === 'Legendary' ? 'warning' : 'primary'}/10 font-bold`}>
@@ -284,7 +284,7 @@ function HunterCard({ hunter }: { hunter: any }) {
               <div>
                 <div className="text-xs text-muted-foreground mb-1">Trust Score</div>
                 <div className="text-3xl font-black text-gradient-primary">
-                  {hunter.trustScore}%
+                  {hunter.trustScore.toFixed(1)}%
                 </div>
               </div>
               <Shield className="h-10 w-10 text-primary animate-pulse-glow" />
@@ -297,25 +297,34 @@ function HunterCard({ hunter }: { hunter: any }) {
               <div className="text-lg font-bold text-secondary">{hunter.completedQuests}</div>
             </div>
             <div className="glass p-3 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Power</div>
-              <div className="text-lg font-bold text-accent">{hunter.powerLevel}</div>
+              <div className="text-xs text-muted-foreground mb-1">Reputation</div>
+              <div className="text-lg font-bold text-accent">{hunter.hunterReputation}</div>
             </div>
           </div>
 
-          <div className="pt-3 border-t border-primary/20">
-            <div className="text-xs text-muted-foreground mb-2">SPECIALTIES</div>
-            <div className="flex flex-wrap gap-2">
-              {hunter.specialties.map((skill: string) => (
-                <Badge key={skill} variant="outline" className="text-xs border-primary/30">
-                  {skill}
-                </Badge>
-              ))}
+          {hunter.skills.length > 0 && (
+            <div className="pt-3 border-t border-primary/20">
+              <div className="text-xs text-muted-foreground mb-2">SKILLS</div>
+              <div className="flex flex-wrap gap-2">
+                {hunter.skills.slice(0, 3).map((skill: string) => (
+                  <Badge key={skill} variant="outline" className="text-xs border-primary/30">
+                    {skill}
+                  </Badge>
+                ))}
+                {hunter.skills.length > 3 && (
+                  <Badge variant="outline" className="text-xs border-primary/30">
+                    +{hunter.skills.length - 3}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center justify-between text-sm pt-2">
             <span className="text-muted-foreground">Guild</span>
-            <span className="text-success font-medium">{hunter.guild}</span>
+            <span className="text-success font-medium">
+              {hunter.guildId ? hunter.guildId.name : 'Independent'}
+            </span>
           </div>
         </div>
       </Card>

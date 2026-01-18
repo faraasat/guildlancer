@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,49 +40,50 @@ interface DashboardClientProps {
   };
 }
 
-// Mock data for missions
-const mockActiveMissions = [
-  {
-    id: 1,
-    title: 'Missing Person Investigation',
-    client: 'FamilyAdvocate',
-    reward: 15000,
-    deadline: '2 days',
-    progress: 65,
-    status: 'in-progress',
-  },
-  {
-    id: 2,
-    title: 'Background Verification Check',
-    client: 'LawFirm Partners',
-    reward: 8500,
-    deadline: '5 days',
-    progress: 30,
-    status: 'in-progress',
-  },
-];
-
-const mockPostedBounties = [
-  {
-    id: 1,
-    title: 'Lost Property Recovery',
-    applications: 5,
-    reward: 12000,
-    status: 'reviewing',
-    posted: '3 days ago',
-  },
-  {
-    id: 2,
-    title: 'Document Research & Analysis',
-    applications: 2,
-    reward: 6000,
-    status: 'active',
-    posted: '1 day ago',
-  },
-];
+interface Bounty {
+  _id: string;
+  title: string;
+  client: any;
+  reward: number;
+  deadline: string;
+  status: string;
+  createdAt: string;
+}
 
 export default function DashboardClient({ user }: DashboardClientProps) {
   const [mode, setMode] = useState<'hunter' | 'client'>('hunter');
+  const [activeMissions, setActiveMissions] = useState<Bounty[]>([]);
+  const [postedBounties, setPostedBounties] = useState<Bounty[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [missionsRes, postedRes] = await Promise.all([
+          fetch('/api/bounties?status=in-progress&limit=10'),
+          fetch('/api/bounties/my-posted?limit=10')
+        ]);
+        
+        if (missionsRes.ok) {
+          const data = await missionsRes.json();
+          setActiveMissions(data.bounties || []);
+        }
+        
+        if (postedRes.ok) {
+          const data = await postedRes.json();
+          setPostedBounties(data.bounties || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+  
   return (
     <div className="relative min-h-screen pt-24 pb-16 overflow-hidden">
       
@@ -186,10 +187,15 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       </Button>
                     </div>
                     
-                    {mockActiveMissions.length > 0 ? (
+                    {loading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                        <p className="text-muted-foreground mt-4">Loading missions...</p>
+                      </div>
+                    ) : activeMissions.length > 0 ? (
                       <div className="space-y-4">
-                        {mockActiveMissions.map((mission) => (
-                          <MissionCard key={mission.id} mission={mission} />
+                        {activeMissions.map((mission) => (
+                          <MissionCard key={mission._id} mission={mission} />
                         ))}
                       </div>
                     ) : (
@@ -243,10 +249,15 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                       </Button>
                     </div>
                     
-                    {mockPostedBounties.length > 0 ? (
+                    {loading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                        <p className="text-muted-foreground mt-4">Loading bounties...</p>
+                      </div>
+                    ) : postedBounties.length > 0 ? (
                       <div className="space-y-4">
-                        {mockPostedBounties.map((bounty) => (
-                          <BountyCard key={bounty.id} bounty={bounty} />
+                        {postedBounties.map((bounty) => (
+                          <BountyCard key={bounty._id} bounty={bounty} />
                         ))}
                       </div>
                     ) : (
@@ -317,10 +328,10 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                     title="Received 1,000 welcome credits"
                     time="Today"
                   />
-                  {mode === 'hunter' && mockActiveMissions.length > 0 && (
+                  {mode === 'hunter' && activeMissions.length > 0 && (
                     <ActivityItem
                       icon="⚔️"
-                      title={`Started mission: ${mockActiveMissions[0].title}`}
+                      title={`Started mission: ${activeMissions[0].title}`}
                       time="2 hours ago"
                     />
                   )}
@@ -328,7 +339,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               </Card>
 
               {/* Getting Started */}
-              {mode === 'hunter' && mockActiveMissions.length === 0 && (
+              {mode === 'hunter' && activeMissions.length === 0 && !loading && (
                 <Card className="glass-strong border-2 border-accent/30 p-8">
                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Sparkles className="h-6 w-6 text-accent" />
@@ -474,6 +485,14 @@ export default function DashboardClient({ user }: DashboardClientProps) {
 
 // Mission Card Component
 function MissionCard({ mission }: { mission: any }) {
+  const clientName = typeof mission.client === 'string' 
+    ? mission.client 
+    : mission.client?.username || 'Unknown';
+  
+  const daysLeft = Math.ceil(
+    (new Date(mission.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+  );
+  
   return (
     <div className="nft-card glass-strong p-6 rounded-lg border-2 border-primary/30 hover:border-primary/60 transition-cyber group hud-border overflow-hidden">
       {/* Scan Line */}
@@ -486,11 +505,11 @@ function MissionCard({ mission }: { mission: any }) {
           <div className="flex items-center gap-4 text-sm text-foreground/70">
             <span className="flex items-center gap-2 font-bold tracking-wider uppercase">
               <Briefcase className="h-4 w-4 text-primary" />
-              {mission.client}
+              {clientName}
             </span>
             <span className="flex items-center gap-2 font-bold tracking-wider uppercase text-warning">
               <Timer className="h-4 w-4 animate-pulse-glow" />
-              {mission.deadline} LEFT
+              {daysLeft} DAYS LEFT
             </span>
           </div>
         </div>
@@ -501,23 +520,21 @@ function MissionCard({ mission }: { mission: any }) {
       
       <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-foreground/70 font-bold tracking-wider uppercase">Progress</span>
-          <span className="font-black text-neon-primary">{mission.progress}%</span>
-        </div>
-        <div className="h-3 bg-background/50 rounded-full overflow-hidden border border-primary/30">
-          <div
-            className="h-full bg-linear-to-r from-primary via-accent to-secondary"
-            style={{ width: `${mission.progress}%` }}
-          />
+          <span className="text-foreground/70 font-bold tracking-wider uppercase">Status</span>
+          <span className="font-black text-neon-primary uppercase">{mission.status}</span>
         </div>
       </div>
       
       <div className="flex gap-3 mt-6">
-        <Button variant="outline" className="flex-1 hologram-card border-2 border-primary/50 hover:border-primary transition-cyber" size="sm">
-          <span className="font-bold tracking-wider">VIEW DETAILS</span>
+        <Button variant="outline" className="flex-1 hologram-card border-2 border-primary/50 hover:border-primary transition-cyber" size="sm" asChild>
+          <Link href={`/bounties/${mission._id}`}>
+            <span className="font-bold tracking-wider">VIEW DETAILS</span>
+          </Link>
         </Button>
-        <Button className="flex-1 btn-anime border-2 border-success/50" size="sm">
-          <span className="font-bold tracking-wider">CONTINUE OPS</span>
+        <Button className="flex-1 btn-anime border-2 border-success/50" size="sm" asChild>
+          <Link href={`/bounties/${mission._id}`}>
+            <span className="font-bold tracking-wider">CONTINUE OPS</span>
+          </Link>
         </Button>
       </div>
     </div>
@@ -542,15 +559,15 @@ function BountyCard({ bounty }: { bounty: any }) {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
-              Posted {bounty.posted}
+              Posted {new Date(bounty.createdAt).toLocaleDateString()}
             </span>
             <span className="flex items-center gap-1">
               <Users className="h-4 w-4" />
-              {bounty.applications} applications
+              {(bounty as any).applications || 0} applications
             </span>
           </div>
         </div>
-        <Badge className={statusColors[bounty.status as keyof typeof statusColors]}>
+        <Badge className={statusColors[bounty.status as keyof typeof statusColors] || statusColors.active}>
           {bounty.status}
         </Badge>
       </div>
@@ -560,9 +577,11 @@ function BountyCard({ bounty }: { bounty: any }) {
           <span className="text-muted-foreground">Reward:</span>{' '}
           <span className="font-bold text-warning">{bounty.reward.toLocaleString()} credits</span>
         </div>
-        <Button variant="outline" className="border-primary/30" size="sm">
-          Manage
-          <ArrowRight className="ml-2 h-4 w-4" />
+        <Button variant="outline" className="border-primary/30" size="sm" asChild>
+          <Link href={`/bounties/${bounty._id}`}>
+            Manage
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
         </Button>
       </div>
     </div>

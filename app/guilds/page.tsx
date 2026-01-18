@@ -6,100 +6,65 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-// Mock data for guilds - Diverse real-world bounty hunting categories
-const mockGuilds = [
-  {
-    id: 1,
-    name: 'Apex Trackers',
-    tagline: 'Elite missing persons & asset recovery',
-    avatar: '🔍',
-    members: 47,
-    activeQuests: 12,
-    trustScore: 98.5,
-    powerLevel: 2847,
-    rank: 'Platinum',
-    specialization: 'Lost & Found / Missing Persons',
-    color: 'primary'
-  },
-  {
-    id: 2,
-    name: 'Digital Forensics Unit',
-    tagline: 'Cyber crime investigation specialists',
-    avatar: '🕵️',
-    members: 52,
-    activeQuests: 18,
-    trustScore: 96.2,
-    powerLevel: 2654,
-    rank: 'Platinum',
-    specialization: 'Forensic Analysis & Cyber Crime',
-    color: 'secondary'
-  },
-  {
-    id: 3,
-    name: 'Truth Seekers',
-    tagline: 'Fact verification & investigation',
-    avatar: '⚖️',
-    members: 38,
-    activeQuests: 9,
-    trustScore: 97.8,
-    powerLevel: 2512,
-    rank: 'Gold',
-    specialization: 'Verification & Background Checks',
-    color: 'accent'
-  },
-  {
-    id: 4,
-    name: 'Shadow Stalkers',
-    tagline: 'Fugitive recovery & surveillance',
-    avatar: '👁️',
-    members: 41,
-    activeQuests: 14,
-    trustScore: 95.4,
-    powerLevel: 2389,
-    rank: 'Gold',
-    specialization: 'Criminal Bounty Hunting',
-    color: 'success'
-  },
-  {
-    id: 5,
-    name: 'Local Heroes',
-    tagline: 'Community assistance & local tasks',
-    avatar: '🦸',
-    members: 29,
-    activeQuests: 7,
-    trustScore: 94.1,
-    powerLevel: 2156,
-    rank: 'Gold',
-    specialization: 'Local Assistance & Errands',
-    color: 'primary'
-  },
-  {
-    id: 6,
-    name: 'InfoHawks',
-    tagline: 'Intelligence gathering & research',
-    avatar: '🦅',
-    members: 44,
-    activeQuests: 11,
-    trustScore: 93.7,
-    powerLevel: 2098,
-    rank: 'Silver',
-    specialization: 'Information Gathering & OSINT',
-    color: 'warning'
-  }
-];
+interface Guild {
+  _id: string;
+  name: string;
+  description: string;
+  avatar: string;
+  memberIds: string[];
+  rank: string;
+  trustScore: number;
+  successRate: number;
+  totalBountiesCompleted: number;
+  categories: string[];
+  activeBountyCount?: number;
+}
 
 export default function GuildsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRank, setSelectedRank] = useState('all');
+  const [guilds, setGuilds] = useState<Guild[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredGuilds = mockGuilds.filter(guild => {
-    const matchesSearch = guild.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         guild.specialization.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRank = selectedRank === 'all' || guild.rank === selectedRank;
-    return matchesSearch && matchesRank;
-  });
+  useEffect(() => {
+    const fetchGuilds = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams({
+          sort: 'trust',
+          limit: '50'
+        });
+        
+        if (selectedRank !== 'all') {
+          params.append('rank', selectedRank);
+        }
+
+        const res = await fetch(`/api/guilds?${params}`);
+        
+        if (!res.ok) {
+          throw new Error('Failed to fetch guilds');
+        }
+
+        const data = await res.json();
+        setGuilds(data.guilds || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGuilds();
+  }, [selectedRank]);
+
+  const filteredGuilds = guilds.filter(guild =>
+    guild.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    guild.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    guild.categories.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
     <div className="relative min-h-screen pt-24 pb-16 overflow-hidden">
@@ -139,7 +104,7 @@ export default function GuildsPage() {
 
               {/* Rank Filter - Enhanced */}
               <div className="flex gap-3">
-                {['all', 'Platinum', 'Gold', 'Silver'].map((rank, index) => (
+                {['all', 'Legendary', 'Master', 'Developing'].map((rank, index) => (
                   <Button
                     key={rank}
                     variant={selectedRank === rank ? 'default' : 'outline'}
@@ -165,11 +130,36 @@ export default function GuildsPage() {
         </div>
 
         {/* Guilds Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGuilds.map((guild) => (
-            <GuildCard key={guild.id} guild={guild} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4 animate-pulse">⏳</div>
+            <h3 className="text-2xl font-bold mb-2">Loading Guilds...</h3>
+            <p className="text-muted-foreground">Please wait</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <Card className="glass-strong border-destructive/30 p-8 max-w-md mx-auto">
+              <div className="text-5xl mb-4">⚠️</div>
+              <h3 className="text-2xl font-bold mb-2 text-destructive">Error Loading Data</h3>
+              <p className="text-muted-foreground">{error}</p>
+              <Button onClick={() => window.location.reload()} className="mt-4">
+                Retry
+              </Button>
+            </Card>
+          </div>
+        ) : filteredGuilds.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 animate-slide-in-up">
+            {filteredGuilds.map((guild) => (
+              <GuildCard key={guild._id} guild={guild} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-2xl font-bold mb-2">No guilds found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+          </div>
+        )}
 
         {/* Empty State */}
         {filteredGuilds.length === 0 && (
@@ -238,24 +228,24 @@ interface Guild {
 function GuildCard({ guild }: { guild: Guild }) {
   const getRankColor = (rank: string) => {
     switch (rank) {
-      case 'Platinum': return 'from-primary/30 to-primary/10';
-      case 'Gold': return 'from-warning/30 to-warning/10';
-      case 'Silver': return 'from-muted/30 to-muted/10';
+      case 'Legendary': return 'from-warning/30 to-warning/10';
+      case 'Master': return 'from-primary/30 to-primary/10';
+      case 'Developing': return 'from-muted/30 to-muted/10';
       default: return 'from-primary/20 to-transparent';
     }
   };
 
   const getRankBadgeColor = (rank: string) => {
     switch (rank) {
-      case 'Platinum': return 'text-primary border-primary/40 bg-primary/10';
-      case 'Gold': return 'text-warning border-warning/40 bg-warning/10';
-      case 'Silver': return 'text-muted-foreground border-muted/40 bg-muted/10';
+      case 'Legendary': return 'text-warning border-warning/40 bg-warning/10';
+      case 'Master': return 'text-primary border-primary/40 bg-primary/10';
+      case 'Developing': return 'text-muted-foreground border-muted/40 bg-muted/10';
       default: return 'text-primary border-primary/40';
     }
   };
 
   return (
-    <Link href={`/guilds/${guild.id}`}>
+    <Link href={`/guilds/${guild._id}`}>
       <Card className={`relative group overflow-hidden glass-strong border-2 border-primary/20 hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 tactical-scan military-corners`}>
         {/* Gradient Background */}
         <div className={`absolute inset-0 bg-linear-to-br ${getRankColor(guild.rank)} opacity-50 group-hover:opacity-70 transition-opacity`} />
@@ -270,7 +260,9 @@ function GuildCard({ guild }: { guild: Guild }) {
                 <h3 className="text-2xl font-bold font-heading group-hover:text-primary transition-colors">
                   {guild.name}
                 </h3>
-                <p className="text-sm text-muted-foreground">{guild.tagline}</p>
+                <p className="text-sm text-muted-foreground line-clamp-1">
+                  {guild.description || 'Elite Guild'}
+                </p>
               </div>
             </div>
             <Badge className={`${getRankBadgeColor(guild.rank)} font-bold`}>
@@ -284,7 +276,7 @@ function GuildCard({ guild }: { guild: Guild }) {
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Trust Score</div>
                 <div className="text-3xl font-black text-gradient-primary">
-                  {guild.trustScore}%
+                  {guild.trustScore.toFixed(1)}%
                 </div>
               </div>
               <div className="relative">
@@ -298,27 +290,43 @@ function GuildCard({ guild }: { guild: Guild }) {
           <div className="grid grid-cols-2 gap-3">
             <div className="glass p-3 rounded-lg border border-secondary/20">
               <div className="text-xs text-muted-foreground mb-1">Members</div>
-              <div className="text-xl font-bold text-secondary">{guild.members}</div>
+              <div className="text-xl font-bold text-secondary">
+                {guild.memberIds?.length || 0}
+              </div>
             </div>
             <div className="glass p-3 rounded-lg border border-accent/20">
-              <div className="text-xs text-muted-foreground mb-1">Active Quests</div>
-              <div className="text-xl font-bold text-accent">{guild.activeQuests}</div>
+              <div className="text-xs text-muted-foreground mb-1">Completed</div>
+              <div className="text-xl font-bold text-accent">
+                {guild.totalBountiesCompleted || 0}
+              </div>
             </div>
           </div>
 
-          {/* Specialization */}
-          <div className="pt-3 border-t border-primary/20">
-            <div className="text-xs text-muted-foreground mb-2">SPECIALIZATION</div>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-success" />
-              <span className="text-sm font-medium">{guild.specialization}</span>
+          {/* Categories */}
+          {guild.categories && guild.categories.length > 0 && (
+            <div className="pt-3 border-t border-primary/20">
+              <div className="text-xs text-muted-foreground mb-2">CATEGORIES</div>
+              <div className="flex flex-wrap gap-2">
+                {guild.categories.slice(0, 2).map((cat: string) => (
+                  <Badge key={cat} variant="outline" className="text-xs border-primary/30">
+                    {cat}
+                  </Badge>
+                ))}
+                {guild.categories.length > 2 && (
+                  <Badge variant="outline" className="text-xs border-primary/30">
+                    +{guild.categories.length - 2}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Power Level */}
+          {/* Success Rate */}
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-muted-foreground">POWER LEVEL</span>
-            <span className="text-lg font-black text-neon-primary">{guild.powerLevel.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">SUCCESS RATE</span>
+            <span className="text-lg font-black text-neon-primary">
+              {guild.successRate?.toFixed(1) || '0'}%
+            </span>
           </div>
 
           {/* Hover Effect Arrow */}

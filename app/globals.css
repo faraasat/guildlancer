@@ -185,9 +185,10 @@ h1, h2, h3, h4, h5, h6 {
   
   /* Holographic Card Effect */
   .hologram-card {
-    background: rgba(var(--card), 0.85);
+    /* background: rgba(var(--card), 0.85); */
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(var(--border), 0.7);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
     position: relative;
     overflow: hidden;
   }
@@ -364,10 +365,11 @@ h1, h2, h3, h4, h5, h6 {
   .btn-anime {
     position: relative;
     overflow: hidden;
-    background: rgba(var(--primary-foreground), 0.12);
-    border: 1px solid rgba(var(--primary-foreground), 0.45);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
     box-shadow: none;
     transition: background 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
   }
   
   .btn-anime::before {

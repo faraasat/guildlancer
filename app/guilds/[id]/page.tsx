@@ -8,47 +8,91 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useEffect } from 'react';
 
-// Mock guild data
-const mockGuild = {
-  id: 1,
-  name: 'Cyber Syndicate',
-  tagline: 'Elite coders & security experts',
-  avatar: '🛡️',
-  description: 'We are a collective of elite security researchers, penetration testers, and infrastructure engineers. Our mission is to build secure, scalable systems while maintaining the highest trust scores in the network.',
-  founded: '2024-03-15',
-  members: 47,
-  activeQuests: 12,
-  completedQuests: 156,
-  trustScore: 98.5,
-  powerLevel: 2847,
-  rank: 'Platinum',
-  specialization: 'Security & Infrastructure',
-  treasury: 458000,
-  successRate: 97.8,
-  avgResponseTime: '2.4 hours',
-  members_list: [
-    { id: 1, name: 'CipherMaster', avatar: '👤', role: 'Guild Master', trustScore: 99.2, quests: 43 },
-    { id: 2, name: 'NeonSamurai', avatar: '⚔️', role: 'Elite Hunter', trustScore: 98.8, quests: 38 },
-    { id: 3, name: 'ByteNinja', avatar: '🥷', role: 'Elite Hunter', trustScore: 98.5, quests: 35 },
-    { id: 4, name: 'QuantumHawk', avatar: '🦅', role: 'Senior Hunter', trustScore: 97.1, quests: 29 },
-    { id: 5, name: 'CodeViper', avatar: '🐍', role: 'Senior Hunter', trustScore: 96.8, quests: 27 },
-  ],
-  recentActivity: [
-    { type: 'quest_completed', quest: 'Missing Person Case', reward: 15000, time: '2 hours ago' },
-    { type: 'member_joined', member: 'QuantumHawk', time: '1 day ago' },
-    { type: 'quest_accepted', quest: 'Background Verification', stake: 8000, time: '2 days ago' },
-    { type: 'dispute_won', quest: 'Asset Recovery', time: '3 days ago' },
-  ],
-  stats: {
-    trustEvolution: [95, 96, 96.5, 97, 97.8, 98, 98.5],
-    questsPerMonth: [8, 12, 15, 18, 14, 16, 12],
-  }
-};
+interface Guild {
+  _id: string;
+  name: string;
+  description: string;
+  avatar: string;
+  banner?: string;
+  rank: string;
+  trustScore: number;
+  successRate: number;
+  totalBountiesCompleted: number;
+  categories: string[];
+  treasuryBalance: number;
+  masterId: any;
+  memberIds: any[];
+  officerIds: any[];
+  foundersIds: any[];
+  createdAt: string;
+}
 
 export default function GuildDetailPage() {
   const params = useParams();
-  const guild = mockGuild; // In real app, fetch by params.id
+  const [guild, setGuild] = useState<Guild | null>(null);
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchGuildData = async () => {
+      try {
+        setLoading(true);
+        const guildId = params.id as string;
+        
+        const [guildRes, membersRes] = await Promise.all([
+          fetch(`/api/guilds/${guildId}`),
+          fetch(`/api/guilds/${guildId}/members`)
+        ]);
+
+        if (!guildRes.ok) {
+          throw new Error('Guild not found');
+        }
+
+        const guildData = await guildRes.json();
+        const membersData = membersRes.ok ? await membersRes.json() : [];
+
+        setGuild(guildData);
+        setMembers(membersData || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchGuildData();
+    }
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-pulse">⏳</div>
+          <h3 className="text-2xl font-bold mb-2">Loading Guild...</h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !guild) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <Card className="glass-strong border-destructive/30 p-8 max-w-md">
+          <div className="text-5xl mb-4 text-center">⚠️</div>
+          <h3 className="text-2xl font-bold mb-2 text-destructive text-center">Guild Not Found</h3>
+          <p className="text-muted-foreground text-center mb-4">{error || 'This guild does not exist'}</p>
+          <Link href="/guilds">
+            <Button className="w-full">Back to Guilds</Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -75,7 +119,6 @@ export default function GuildDetailPage() {
                       {guild.rank}
                     </Badge>
                   </div>
-                  <p className="text-xl text-muted-foreground mb-4">{guild.tagline}</p>
                   <p className="text-foreground/80 leading-relaxed mb-6">{guild.description}</p>
                   
                   <div className="flex flex-wrap gap-4">
@@ -111,11 +154,11 @@ export default function GuildDetailPage() {
                 <div className="pt-4 border-t border-primary/20 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Success Rate</span>
-                    <span className="font-bold text-success">{guild.successRate}%</span>
+                    <span className="font-bold text-success">{guild.successRate.toFixed(1)}%</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Response Time</span>
-                    <span className="font-bold text-secondary">{guild.avgResponseTime}</span>
+                    <span className="text-muted-foreground">Completed</span>
+                    <span className="font-bold text-secondary">{guild.totalBountiesCompleted}</span>
                   </div>
                 </div>
               </div>
@@ -125,24 +168,24 @@ export default function GuildDetailPage() {
 
         {/* Key Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          <StatCard icon={<Users />} label="Members" value={guild.members.toString()} color="primary" />
-          <StatCard icon={<Target />} label="Active Quests" value={guild.activeQuests.toString()} color="secondary" />
-          <StatCard icon={<Award />} label="Completed" value={guild.completedQuests.toString()} color="accent" />
-          <StatCard icon={<Zap />} label="Power Level" value={guild.powerLevel.toLocaleString()} color="success" />
+          <StatCard icon={<Users />} label="Members" value={(1 + guild.officerIds.length + guild.memberIds.length).toString()} color="primary" />
+          <StatCard icon={<Target />} label="Categories" value={guild.categories.length.toString()} color="secondary" />
+          <StatCard icon={<Award />} label="Completed" value={guild.totalBountiesCompleted.toString()} color="accent" />
+          <StatCard icon={<Zap />} label="Treasury" value={`${guild.treasuryBalance.toLocaleString()} C`} color="success" />
         </div>
 
         {/* Tabs Section */}
         <Tabs defaultValue="members" className="space-y-8">
-          <TabsList className="glass-strong border border-primary/30 p-1">
-            <TabsTrigger value="members" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+          <TabsList className="glass-strong border border-primary/30 p-7">
+            <TabsTrigger value="members" className="data-[state=active]:bg-white/20 w-auto h-full p-5 my-2 mr-2 data-[state=active]:text-primary">
               <Users className="mr-2 h-4 w-4" />
               Members
             </TabsTrigger>
-            <TabsTrigger value="activity" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <TabsTrigger value="activity" className="data-[state=active]:bg-white/20 w-auto h-full p-5 my-2 mr-2 data-[state=active]:text-primary">
               <Activity className="mr-2 h-4 w-4" />
               Activity
             </TabsTrigger>
-            <TabsTrigger value="stats" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <TabsTrigger value="stats" className="data-[state=active]:bg-white/20 w-auto h-full p-5 my-2 mr-2 data-[state=active]:text-primary">
               <TrendingUp className="mr-2 h-4 w-4" />
               Performance
             </TabsTrigger>
@@ -151,30 +194,30 @@ export default function GuildDetailPage() {
           {/* Members Tab */}
           <TabsContent value="members" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {guild.members_list.map((member) => (
-                <Card key={member.id} className="glass-strong border-2 border-primary/20 hover:border-primary/40 p-6 group transition-all">
+              {members.map((member: any) => (
+                <Card key={member._id} className="glass-strong border-2 border-primary/20 hover:border-primary/40 p-6 group transition-all">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="text-3xl">{member.avatar}</div>
                       <div>
                         <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-                          {member.name}
+                          {member.username}
                         </h3>
-                        <p className="text-sm text-muted-foreground">{member.role}</p>
+                        <p className="text-sm text-muted-foreground">{member.guildRole || 'Member'}</p>
                       </div>
                     </div>
-                    {member.role === 'Guild Master' && (
+                    {member.guildRole === 'Guild Master' && (
                       <Crown className="h-5 w-5 text-warning animate-pulse-glow" />
                     )}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="glass p-3 rounded-lg">
                       <div className="text-xs text-muted-foreground mb-1">Trust Score</div>
-                      <div className="text-lg font-bold text-primary">{member.trustScore}%</div>
+                      <div className="text-lg font-bold text-primary">{member.trustScore.toFixed(1)}%</div>
                     </div>
                     <div className="glass p-3 rounded-lg">
                       <div className="text-xs text-muted-foreground mb-1">Quests</div>
-                      <div className="text-lg font-bold text-secondary">{member.quests}</div>
+                      <div className="text-lg font-bold text-secondary">{member.completedQuests}</div>
                     </div>
                   </div>
                 </Card>
@@ -184,83 +227,12 @@ export default function GuildDetailPage() {
 
           {/* Activity Tab */}
           <TabsContent value="activity" className="space-y-4">
-            {guild.recentActivity.map((activity, idx) => (
-              <Card key={idx} className="glass-strong border-2 border-primary/20 p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <ActivityIcon type={activity.type} />
-                    <div>
-                      <div className="font-medium">
-                        {activity.type === 'quest_completed' && `Completed: ${activity.quest}`}
-                        {activity.type === 'member_joined' && `${activity.member} joined the guild`}
-                        {activity.type === 'quest_accepted' && `Accepted: ${activity.quest}`}
-                        {activity.type === 'dispute_won' && `Won dispute: ${activity.quest}`}
-                      </div>
-                      <div className="text-sm text-muted-foreground">{activity.time}</div>
-                    </div>
-                  </div>
-                  {activity.type === 'quest_completed' && (
-                    <Badge className="bg-success/10 text-success border-success/30">
-                      +{activity.reward?.toLocaleString()} credits
-                    </Badge>
-                  )}
-                  {activity.type === 'quest_accepted' && (
-                    <Badge className="bg-warning/10 text-warning border-warning/30">
-                      {activity.stake?.toLocaleString()} staked
-                    </Badge>
-                  )}
-                </div>
-              </Card>
-            ))}
+            <p className="text-muted-foreground text-center py-8">Activity feed coming soon...</p>
           </TabsContent>
 
           {/* Performance Tab */}
           <TabsContent value="stats">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="glass-strong border-2 border-primary/30 p-6">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  Trust Score Evolution
-                </h3>
-                <div className="h-64 flex items-end justify-between gap-2">
-                  {guild.stats.trustEvolution.map((score, idx) => (
-                    <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                      <div 
-                        className="w-full bg-linear-to-t from-primary to-secondary rounded-t-lg relative group"
-                        style={{ height: `${(score / 100) * 100}%` }}
-                      >
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-card px-2 py-1 rounded text-xs font-bold whitespace-nowrap">
-                          {score}%
-                        </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground">W{idx + 1}</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              <Card className="glass-strong border-2 border-primary/30 p-6">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Target className="h-5 w-5 text-secondary" />
-                  Monthly Quest Volume
-                </h3>
-                <div className="h-64 flex items-end justify-between gap-2">
-                  {guild.stats.questsPerMonth.map((quests, idx) => (
-                    <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                      <div 
-                        className="w-full bg-linear-to-t from-secondary to-accent rounded-t-lg relative group"
-                        style={{ height: `${(quests / 20) * 100}%` }}
-                      >
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-card px-2 py-1 rounded text-xs font-bold">
-                          {quests}
-                        </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground">M{idx + 1}</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
+            <p className="text-muted-foreground text-center py-8">Performance analytics coming soon...</p>
           </TabsContent>
         </Tabs>
       </div>

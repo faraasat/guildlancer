@@ -26,7 +26,7 @@ export default function HomePage() {
 
             {/* Main Heading - Enhanced with Neon */}
             <div className="space-y-6 animate-fade-in">
-              <h1 className="text-7xl md:text-9xl font-black font-heading tracking-tighter leading-none">
+              <h1 className="text-7xl md:text-8xl font-black font-heading tracking-tighter leading-none">
                 <span className="text-neon-primary animate-neon-flicker">GUILDIFIED</span>
                 <br />
                 <span className="text-gradient-primary">TRUST PROTOCOL</span>

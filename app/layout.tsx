@@ -25,7 +25,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "GuildLancer - Guildified Trust Platform",
-  description: "A guild-based, trust-driven bounty resolution platform powered by community governance and AI-assisted decision making.",
+  description:
+    "A guild-based, trust-driven bounty resolution platform powered by community governance and AI-assisted decision making.",
   keywords: ["guilds", "bounties", "trust", "community", "governance", "web3"],
 };
 
@@ -38,14 +39,16 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${spaceGrotesk.variable} ${orbitron.variable} ${jetbrainsMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <SessionProvider>
           <Navbar />
-          <main className="min-h-screen pt-16">{children}</main>
+          <main className="min-h-screen pt-16" suppressHydrationWarning>
+            {children}
+          </main>
           <Footer />
         </SessionProvider>
       </body>
     </html>
   );
 }
-

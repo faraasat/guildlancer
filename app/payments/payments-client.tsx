@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,36 +42,17 @@ interface PaymentsClientProps {
   };
 }
 
-// Mock data
-const mockBalance = {
-  available: 1000,
-  staked: 0,
-  pending: 0,
-  lifetime: 1000,
-};
-
-const mockTransactions = [
-  {
-    id: 'TXN001',
-    type: 'credit',
-    description: 'Welcome Bonus',
-    amount: 1000,
-    balance: 1000,
-    status: 'completed',
-    date: new Date().toISOString(),
-  },
-];
-
-// Mock stakes data
-interface Stake {
-  id: string;
+interface Transaction {
+  _id: string;
   type: string;
   amount: number;
   status: string;
+  description?: string;
   createdAt: string;
+  fromUser?: any;
+  toUser?: any;
+  bounty?: any;
 }
-
-const mockStakes: Stake[] = [];
 
 const cashFlowData = [
   { month: 'Jan', income: 0, expenses: 0 },
@@ -93,10 +74,37 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [stakeAmount, setStakeAmount] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState({
+    available: 1000,
+    staked: 0,
+    pending: 0,
+    lifetime: 1000,
+  });
 
-  const filteredTransactions = mockTransactions.filter((tx) =>
-    tx.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tx.id.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/transactions?userId=${user.id}&limit=50`);
+        if (res.ok) {
+          const data = await res.json();
+          setTransactions(data.transactions || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch transactions:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [user.id]);
+
+  const filteredTransactions = transactions.filter((tx) =>
+    (tx.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tx._id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -117,28 +125,28 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <BalanceCard
               title="Available Credits"
-              amount={mockBalance.available}
+              amount={balance.available}
               icon={<Wallet className="h-6 w-6" />}
               color="text-primary"
               trend="+100%"
             />
             <BalanceCard
               title="Staked Credits"
-              amount={mockBalance.staked}
+              amount={balance.staked}
               icon={<Lock className="h-6 w-6" />}
               color="text-purple-400"
               info="Earn 5% APY"
             />
             <BalanceCard
               title="Pending Earnings"
-              amount={mockBalance.pending}
+              amount={balance.pending}
               icon={<Clock className="h-6 w-6" />}
               color="text-warning"
               info="Releases after mission completion"
             />
             <BalanceCard
               title="Lifetime Earned"
-              amount={mockBalance.lifetime}
+              amount={balance.lifetime}
               icon={<TrendingUp className="h-6 w-6" />}
               color="text-success"
             />
@@ -253,36 +261,51 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTransactions.map((tx) => (
-                        <tr key={tx.id} className="border-b border-primary/10 hover:bg-primary/5 transition-colors">
-                          <td className="px-6 py-4 text-sm">
-                            {new Date(tx.date).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm font-mono text-primary">
-                            {tx.id}
-                          </td>
-                          <td className="px-6 py-4 text-sm">{tx.description}</td>
-                          <td className={`px-6 py-4 text-sm text-right font-bold ${
-                            tx.type === 'credit' ? 'text-success' : 'text-destructive'
-                          }`}>
-                            {tx.type === 'credit' ? '+' : '-'}{tx.amount.toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-right">
-                            {tx.balance.toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <Badge className={
-                              tx.status === 'completed'
-                                ? 'bg-success/20 text-success border-success/30'
-                                : tx.status === 'pending'
-                                ? 'bg-warning/20 text-warning border-warning/30'
-                                : 'bg-destructive/20 text-destructive border-destructive/30'
-                            }>
-                              {tx.status}
-                            </Badge>
+                      {loading ? (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                            <p className="text-muted-foreground mt-2">Loading transactions...</p>
                           </td>
                         </tr>
-                      ))}
+                      ) : filteredTransactions.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                            No transactions found
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredTransactions.map((tx) => (
+                          <tr key={tx._id} className="border-b border-primary/10 hover:bg-primary/5 transition-colors">
+                            <td className="px-6 py-4 text-sm">
+                              {new Date(tx.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-mono text-primary">
+                              {tx._id.slice(-8)}
+                            </td>
+                            <td className="px-6 py-4 text-sm">{tx.description || tx.type}</td>
+                            <td className={`px-6 py-4 text-sm text-right font-bold ${
+                              tx.type === 'credit' || tx.type === 'bounty_reward' ? 'text-success' : 'text-destructive'
+                            }`}>
+                              {tx.type === 'credit' || tx.type === 'bounty_reward' ? '+' : '-'}{tx.amount.toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-right">
+                              -
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <Badge className={
+                                tx.status === 'completed'
+                                  ? 'bg-success/20 text-success border-success/30'
+                                  : tx.status === 'pending'
+                                  ? 'bg-warning/20 text-warning border-warning/30'
+                                  : 'bg-destructive/20 text-destructive border-destructive/30'
+                              }>
+                                {tx.status}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -315,7 +338,7 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
                         className="bg-background/50 border-primary/30"
                       />
                       <p className="text-xs text-muted-foreground mt-2">
-                        Available: {mockBalance.available.toLocaleString()} credits
+                        Available: {balance.available.toLocaleString()} credits
                       </p>
                     </div>
 
@@ -379,23 +402,13 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
               {/* Active Stakes */}
               <Card className="glass-strong border-2 border-primary/30 p-6">
                 <h3 className="text-xl font-bold mb-4">Active Stakes</h3>
-                {mockStakes.length > 0 ? (
-                  <div className="space-y-4">
-                    {mockStakes.map((stake: any) => (
-                      <div key={stake.id} className="glass p-4 rounded-lg">
-                        {/* Stake info */}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-30" />
-                    <p className="text-muted-foreground">No active stakes yet</p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Start staking to earn passive income
-                    </p>
-                  </div>
-                )}
+                <div className="text-center py-12">
+                  <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-30" />
+                  <p className="text-muted-foreground">No active stakes yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Start staking to earn passive income
+                  </p>
+                </div>
               </Card>
             </TabsContent>
           </Tabs>

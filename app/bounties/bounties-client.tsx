@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,79 +24,19 @@ interface BountiesClientProps {
     username: string;
   };
 }
-// Mock bounties data - Diverse real-world bounty types
-const mockBounties = [
-  {
-    id: 'BNT001',
-    title: 'Missing Person Investigation - Chicago Area',
-    description: 'Locate missing individual last seen near downtown Chicago. Requires experienced investigator with local knowledge and skip-tracing skills.',
-    category: 'Missing Persons',
-    reward: 5000,
-    urgency: 'high',
-    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'familyadvocate',
-    clientRating: 4.8,
-    requiredRank: 'Elite',
-    applications: 12,
-    status: 'open',
-  },
-  {
-    id: 'BNT002',
-    title: 'Corporate Background Verification',
-    description: 'Conduct thorough background check on potential business partner. Verify credentials, business history, and financial standing.',
-    category: 'Verification',
-    reward: 3000,
-    urgency: 'medium',
-    deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'bizowner',
-    clientRating: 4.5,
-    requiredRank: 'Veteran',
-    applications: 8,
-    status: 'open',
-  },
-  {
-    id: 'BNT003',
-    title: 'Lost Jewelry Recovery - Manhattan',
-    description: 'Family heirloom lost in Manhattan area. Diamond ring with engraving. Check pawn shops, lost & found, local businesses.',
-    category: 'Lost & Found',
-    reward: 1500,
-    urgency: 'medium',
-    deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'desperate_owner',
-    clientRating: 4.9,
-    requiredRank: 'Rookie',
-    applications: 15,
-    status: 'open',
-  },
-  {
-    id: 'BNT004',
-    title: 'Digital Forensic Analysis',
-    description: 'Recover deleted files and analyze digital evidence from compromised device. Cyber crime investigation support.',
-    category: 'Forensics',
-    reward: 4500,
-    urgency: 'high',
-    deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'lawfirm_partner',
-    clientRating: 5.0,
-    requiredRank: 'Elite',
-    applications: 6,
-    status: 'open',
-  },
-  {
-    id: 'BNT005',
-    title: 'Local Assistance - Document Delivery',
-    description: 'Urgent document delivery and notarization in Los Angeles. Must be available today and have reliable transportation.',
-    category: 'Local Tasks',
-    reward: 200,
-    urgency: 'high',
-    deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'attorney_office',
-    clientRating: 4.7,
-    requiredRank: 'Rookie',
-    applications: 23,
-    status: 'open',
-  },
-];
+
+interface Bounty {
+  _id: string;
+  title: string;
+  description: string;
+  category: string;
+  reward: number;
+  urgency: string;
+  deadline: string;
+  client: any;
+  requiredRank: string;
+  status: string;
+}
 
 const categories = ['All', 'Missing Persons', 'Lost & Found', 'Verification', 'Forensics', 'Local Tasks', 'Research'];
 const urgencyLevels = ['All', 'High', 'Medium', 'Low'];
@@ -108,6 +48,33 @@ export default function BountiesClient({ user }: BountiesClientProps) {
   const [selectedUrgency, setSelectedUrgency] = useState('All');
   const [selectedRank, setSelectedRank] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
+  const [bounties, setBounties] = useState<Bounty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBounties = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const res = await fetch('/api/bounties?status=open&limit=50');
+        if (!res.ok) throw new Error('Failed to fetch bounties');
+        const data = await res.json();
+        setBounties(data.bounties || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBounties();
+  }, [user]);
+  
   // If user is not authenticated, show public view
   if (!user) {
     return (
@@ -155,8 +122,31 @@ export default function BountiesClient({ user }: BountiesClientProps) {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading bounties...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <Card className="glass-strong border-2 border-destructive/30 p-8 max-w-md">
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-center mb-2">Error Loading Bounties</h3>
+          <p className="text-muted-foreground text-center">{error}</p>
+        </Card>
+      </div>
+    );
+  }
+
   // Filter bounties
-  const filteredBounties = mockBounties.filter((bounty) => {
+  const filteredBounties = bounties.filter((bounty) => {
     const matchesSearch =
       bounty.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       bounty.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -273,7 +263,7 @@ export default function BountiesClient({ user }: BountiesClientProps) {
           {filteredBounties.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredBounties.map((bounty) => (
-                <BountyCard key={bounty.id} bounty={bounty} />
+                <BountyCard key={bounty._id} bounty={bounty} />
               ))}
             </div>
           ) : (
@@ -290,20 +280,7 @@ export default function BountiesClient({ user }: BountiesClientProps) {
 }
 
 interface BountyCardProps {
-  bounty: {
-    id: string;
-    title: string;
-    description: string;
-    category: string;
-    reward: number;
-    urgency: string;
-    deadline: string;
-    client: string;
-    clientRating: number;
-    requiredRank: string;
-    applications: number;
-    status: string;
-  };
+  bounty: Bounty;
 }
 
 function BountyCard({ bounty }: BountyCardProps) {
@@ -375,28 +352,36 @@ function BountyCard({ bounty }: BountyCardProps) {
         </span>
         <span className="flex items-center gap-1">
           <Users className="h-3 w-3" />
-          {bounty.applications} applicants
+          {(bounty as any).applications || 0} applicants
         </span>
-        <span className="flex items-center gap-1">
-          <Star className="h-3 w-3 text-warning fill-warning" />
-          {bounty.clientRating}
-        </span>
+        {(bounty as any).clientRating && (
+          <span className="flex items-center gap-1">
+            <Star className="h-3 w-3 text-warning fill-warning" />
+            {(bounty as any).clientRating}
+          </span>
+        )}
       </div>
 
       {/* Client Info */}
       <div className="flex items-center justify-between pt-4 border-t border-primary/20">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full glass border border-primary/30 flex items-center justify-center text-sm">
-            {bounty.client[0].toUpperCase()}
+            {typeof bounty.client === 'string' 
+              ? bounty.client[0].toUpperCase() 
+              : (bounty.client?.username || 'U')[0].toUpperCase()}
           </div>
           <div>
-            <p className="text-sm font-medium">{bounty.client}</p>
+            <p className="text-sm font-medium">
+              {typeof bounty.client === 'string' ? bounty.client : bounty.client?.username || 'Unknown'}
+            </p>
             <p className="text-xs text-muted-foreground">Client</p>
           </div>
         </div>
-        <Button className="glow-primary military-corners">
-          <Target className="mr-2 h-4 w-4" />
-          Apply
+        <Button className="glow-primary military-corners" asChild>
+          <Link href={`/bounties/${bounty._id}`}>
+            <Target className="mr-2 h-4 w-4" />
+            Apply
+          </Link>
         </Button>
       </div>
       </div>
