@@ -138,9 +138,8 @@ GuildSchema.index({ rank: 1 });
 GuildSchema.index({ masterId: 1 });
 
 // Middleware to update updatedAt
-GuildSchema.pre('save', function(next) {
+GuildSchema.pre('save', function(this: IGuild) {
   this.updatedAt = new Date();
-  next();
 });
 
 const Guild: Model<IGuild> = mongoose.models.Guild || mongoose.model<IGuild>('Guild', GuildSchema);

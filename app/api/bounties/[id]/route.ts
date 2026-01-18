@@ -4,10 +4,11 @@ import { getBountyById } from '@/lib/actions/bounties';
 // GET /api/bounties/[id] - Get bounty by ID
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const result = await getBountyById(params.id);
+    const { id } = await params;
+    const result = await getBountyById(id);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 404 });

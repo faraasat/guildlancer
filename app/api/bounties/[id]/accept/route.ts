@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth';
 // POST /api/bounties/[id]/accept - Accept a bounty (Guild Master)
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -19,7 +19,8 @@ export async function POST(
       return NextResponse.json({ error: 'Guild ID is required' }, { status: 400 });
     }
 
-    const result = await acceptBounty(params.id, guildId);
+    const { id } = await params;
+    const result = await acceptBounty(id, guildId);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

@@ -5,9 +5,10 @@ import { auth } from '@/lib/auth';
 // POST /api/guilds/[id]/members - Join guild or manage members
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,7 +19,7 @@ export async function POST(
 
     if (action === 'join') {
       // Join guild
-      const result = await applyToGuild(params.id);
+      const result = await applyToGuild(id);
       
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });

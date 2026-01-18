@@ -5,9 +5,10 @@ import { auth } from '@/lib/auth';
 // POST /api/messages/message/[id]/react - Add/remove reaction
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,7 +20,7 @@ export async function POST(
       return NextResponse.json({ error: 'Emoji is required' }, { status: 400 });
     }
 
-    const result = await addReaction(params.id, emoji);
+    const result = await addReaction(id, emoji);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

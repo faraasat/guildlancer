@@ -380,7 +380,7 @@ function ClientAnalytics({ user }: { user: any }) {
 }
 
 function MetricCard({ icon, label, value, change, trend }: any) {
-  const trendColors = {
+  const trendColors: Record<string, string> = {
     up: 'text-success',
     down: 'text-destructive',
     neutral: 'text-muted-foreground',
@@ -393,7 +393,7 @@ function MetricCard({ icon, label, value, change, trend }: any) {
       </div>
       <div className="text-3xl font-black text-gradient-primary mb-1">{value}</div>
       <div className="text-sm text-muted-foreground mb-2">{label}</div>
-      <div className={`text-xs font-medium ${trendColors[trend]}`}>{change}</div>
+      <div className={`text-xs font-medium ${trendColors[trend] || trendColors.neutral}`}>{change}</div>
     </Card>
   );
 }
@@ -410,14 +410,14 @@ function ComparisonRow({ label, you, guild, platform }: any) {
 }
 
 function InsightCard({ title, description, type }: any) {
-  const colors = {
+  const colors: Record<string, string> = {
     info: 'border-primary/30 bg-primary/5',
     success: 'border-success/30 bg-success/5',
     warning: 'border-warning/30 bg-warning/5',
   };
 
   return (
-    <div className={`glass p-4 rounded-lg border-2 ${colors[type]}`}>
+    <div className={`glass p-4 rounded-lg border-2 ${colors[type] || colors.info}`}>
       <h3 className="font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>

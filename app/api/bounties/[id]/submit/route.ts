@@ -5,16 +5,17 @@ import { auth } from '@/lib/auth';
 // POST /api/bounties/[id]/submit - Submit proof of work
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const proof = await req.json();
-    const result = await submitBountyProof(params.id, proof);
+    const result = await submitBountyProof(id, proof);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

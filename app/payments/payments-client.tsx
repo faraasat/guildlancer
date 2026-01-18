@@ -62,7 +62,7 @@ const mockTransactions = [
   },
 ];
 
-const mockStakes = [];
+const mockStakes: any[] = [];
 
 const cashFlowData = [
   { month: 'Jan', income: 0, expenses: 0 },

@@ -5,9 +5,10 @@ import { auth } from '@/lib/auth';
 // POST /api/bounties/[id]/review - Review bounty submission (Client)
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,7 +20,7 @@ export async function POST(
       return NextResponse.json({ error: 'Accept boolean is required' }, { status: 400 });
     }
 
-    const result = await reviewBountySubmission(params.id, accept);
+    const result = await reviewBountySubmission(id, accept);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

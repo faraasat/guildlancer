@@ -5,9 +5,10 @@ import { auth } from '@/lib/auth';
 // GET /api/messages/[conversationId] - Get messages for a conversation
 export async function GET(
   req: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
+    const { conversationId } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(
     const limit = Number(searchParams.get('limit') || '50');
     const before = searchParams.get('before') || undefined;
 
-    const result = await getMessages(params.conversationId, limit, before);
+    const result = await getMessages(conversationId, limit, before);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });
@@ -32,16 +33,17 @@ export async function GET(
 // POST /api/messages/[conversationId] - Send a message
 export async function POST(
   req: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
+    const { conversationId } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const messageData = await req.json();
-    const result = await sendMessage(params.conversationId, messageData);
+    const result = await sendMessage(conversationId, messageData);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

@@ -192,9 +192,8 @@ BountySchema.index({ acceptedByGuildId: 1 });
 BountySchema.index({ postedAt: -1 });
 
 // Middleware
-BountySchema.pre('save', function(next) {
+BountySchema.pre('save', function(this: IBounty) {
   this.updatedAt = new Date();
-  next();
 });
 
 const Bounty: Model<IBounty> = mongoose.models.Bounty || mongoose.model<IBounty>('Bounty', BountySchema);

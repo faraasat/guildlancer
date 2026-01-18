@@ -4,10 +4,11 @@ import { getGuildStats } from '@/lib/actions/guilds';
 // GET /api/guilds/[id]/stats - Get guild statistics and analytics
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const result = await getGuildStats(params.id);
+    const { id } = await params;
+    const result = await getGuildStats(id);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 404 });

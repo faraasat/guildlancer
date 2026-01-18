@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import FloatingParticles from '@/components/FloatingParticles';
 import {
   Shield,
   Award,
@@ -23,7 +24,10 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle,
-  Timer
+  Timer,
+  Crosshair,
+  Terminal,
+  Radar
 } from 'lucide-react';
 
 interface DashboardClientProps {
@@ -81,37 +85,60 @@ const mockPostedBounties = [
 export default function DashboardClient({ user }: DashboardClientProps) {
   const [mode, setMode] = useState<'hunter' | 'client'>('hunter');
   return (
-    <div className="min-h-screen pt-24 pb-16">
-      <div className="container mx-auto px-4">
+    <div className="relative min-h-screen pt-24 pb-16 overflow-hidden">
+      {/* Floating Particles Background */}
+      <FloatingParticles />
+      
+      {/* Animated Background Grid */}
+      <div className="absolute inset-0 bg-circuit opacity-10 animate-grid-move" />
+      
+      {/* Radial Gradients */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px] animate-pulse-glow" />
+        <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-accent/6 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
+      </div>
+      
+      {/* HUD Corner Brackets */}
+      <div className="fixed top-20 left-4 w-20 h-20 border-l-2 border-t-2 border-primary/30 pointer-events-none animate-fade-in" />
+      <div className="fixed top-20 right-4 w-20 h-20 border-r-2 border-t-2 border-primary/30 pointer-events-none animate-fade-in" />
+      <div className="fixed bottom-4 left-4 w-20 h-20 border-l-2 border-b-2 border-primary/30 pointer-events-none animate-fade-in" />
+      <div className="fixed bottom-4 right-4 w-20 h-20 border-r-2 border-b-2 border-primary/30 pointer-events-none animate-fade-in" />
+      
+      <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-7xl mx-auto">
           {/* Header with Mode Toggle */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-black font-heading mb-2">
-                Welcome back, <span className="text-gradient-primary">{user.username}</span>
+          <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-slide-in-up">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass border-2 border-primary/40 text-sm font-bold tracking-wider mb-2 animate-shimmer-slide">
+                <Radar className="h-5 w-5 text-primary animate-radar-sweep" />
+                <span className="text-primary">COMMAND CENTER</span>
+              </div>
+              <h1 className="text-5xl md:text-6xl font-black font-heading">
+                <span className="text-neon-primary animate-neon-flicker">WELCOME BACK,</span>{' '}
+                <span className="text-gradient-primary">{user.username}</span>
               </h1>
-              <p className="text-muted-foreground text-lg">
-                Your command center for all quest activities
+              <p className="text-foreground/80 text-xl font-light">
+                Your <span className="text-gradient-primary font-bold">tactical operations</span> command center
               </p>
             </div>
             
-            {/* Mode Toggle */}
-            <Card className="glass-strong border-2 border-primary/30 p-1 inline-flex">
+            {/* Mode Toggle - Enhanced */}
+            <Card className="nft-card glass-strong border-2 border-primary/40 p-1 inline-flex hud-border">
               <Button
                 variant={mode === 'hunter' ? 'default' : 'ghost'}
-                className={mode === 'hunter' ? 'glow-primary' : ''}
+                className={mode === 'hunter' ? 'btn-anime border-2 border-primary/50' : 'transition-cyber'}
                 onClick={() => setMode('hunter')}
               >
-                <Target className="mr-2 h-4 w-4" />
-                Hunter Mode
+                <Crosshair className="mr-2 h-5 w-5" />
+                <span className="font-bold tracking-wider">HUNTER MODE</span>
               </Button>
               <Button
                 variant={mode === 'client' ? 'default' : 'ghost'}
-                className={mode === 'client' ? 'glow-primary' : ''}
+                className={mode === 'client' ? 'btn-anime border-2 border-primary/50' : 'transition-cyber'}
                 onClick={() => setMode('client')}
               >
-                <Briefcase className="mr-2 h-4 w-4" />
-                Client Mode
+                <Terminal className="mr-2 h-5 w-5" />
+                <span className="font-bold tracking-wider">CLIENT MODE</span>
               </Button>
             </Card>
           </div>
@@ -159,16 +186,21 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               {mode === 'hunter' && (
                 <>
                   {/* Active Missions */}
-                  <Card className="glass-strong border-2 border-primary/30 p-8">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-2xl font-bold flex items-center gap-2">
-                        <Activity className="h-6 w-6 text-primary" />
-                        Active Missions
+                  <Card className="relative nft-card glass-strong border-2 border-primary/40 p-8 hud-border overflow-hidden">
+                    {/* Scan Line Effect */}
+                    <div className="scan-line" />
+                    
+                    <div className="flex items-center justify-between mb-8">
+                      <h2 className="text-3xl font-black flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/20 border-2 border-primary/40 glow-primary">
+                          <Activity className="h-7 w-7 text-primary" />
+                        </div>
+                        <span className="text-neon-primary tracking-tight">ACTIVE MISSIONS</span>
                       </h2>
-                      <Button asChild variant="outline" className="border-primary/30">
+                      <Button asChild variant="outline" className="hologram-card border-2 border-primary/50 hover:border-primary transition-cyber">
                         <Link href="/bounties">
-                          Browse All
-                          <ArrowRight className="ml-2 h-4 w-4" />
+                          <span className="font-bold tracking-wider">BROWSE ALL</span>
+                          <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                       </Button>
                     </div>
@@ -180,16 +212,19 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <div className="text-6xl mb-4">🎯</div>
-                        <h3 className="text-xl font-bold mb-2">No Active Missions</h3>
-                        <p className="text-muted-foreground mb-6">
-                          Start your journey by accepting a quest
+                      <div className="text-center py-16 relative">
+                        <div className="relative inline-block mb-6">
+                          <Crosshair className="h-24 w-24 text-primary mx-auto animate-pulse-glow" />
+                          <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl animate-pulse-glow" />
+                        </div>
+                        <h3 className="text-2xl font-black mb-3 text-gradient-primary">NO ACTIVE MISSIONS</h3>
+                        <p className="text-foreground/70 mb-8 text-lg">
+                          Deploy to the field and secure your first <span className="text-gradient-success font-bold">objective</span>
                         </p>
-                        <Button asChild className="glow-primary">
+                        <Button asChild className="btn-anime border-2 border-primary/50 text-lg h-14 px-10">
                           <Link href="/bounties">
-                            <Target className="mr-2 h-4 w-4" />
-                            Find Quests
+                            <Target className="mr-3 h-5 w-5" />
+                            <span className="font-black tracking-wider">FIND MISSIONS</span>
                           </Link>
                         </Button>
                       </div>
@@ -349,69 +384,93 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             {/* Sidebar */}
             <div className="space-y-8">
               {/* Profile Summary */}
-              <Card className="glass-strong border-2 border-primary/30 p-6">
-                <div className="text-center mb-4">
-                  <div className="text-6xl mb-3 animate-float">{user.avatar || '👤'}</div>
-                  <h3 className="text-xl font-bold mb-1">{user.username}</h3>
-                  <Badge className="text-primary border-primary/40 bg-primary/10">
+              <Card className="nft-card glass-strong border-2 border-primary/40 p-6 hud-border overflow-hidden">
+                {/* Scan Line */}
+                <div className="scan-line" />
+                
+                <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-neon-primary tracking-wider">
+                  <Shield className="h-5 w-5" />
+                  OPERATOR PROFILE
+                </h3>
+                
+                <div className="text-center mb-6">
+                  <div className="relative inline-block mb-4">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center border-2 border-primary/50 glow-primary">
+                      <span className="text-4xl font-black text-neon-primary">{user.username[0].toUpperCase()}</span>
+                    </div>
+                    <div className="absolute -inset-2 border-2 border-primary/30 rounded-full animate-pulse-glow" />
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-success rounded-full border-2 border-background animate-glow-pulse" />
+                  </div>
+                  <h3 className="text-xl font-black mb-1 text-gradient-primary">{user.username}</h3>
+                  <Badge className="text-primary border-2 border-primary/50 bg-primary/20 font-bold tracking-wider">
                     {user.rank}
                   </Badge>
                 </div>
                 
-                <div className="space-y-3 pt-4 border-t border-primary/20">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Trust Score</span>
-                    <span className="font-bold text-primary">{user.trustScore}%</span>
+                <div className="space-y-4 pt-4 border-t-2 border-primary/30">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Trust Score</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-20 bg-primary/20 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-primary to-success rounded-full animate-shimmer" style={{ width: `${user.trustScore}%` }} />
+                      </div>
+                      <span className="font-black text-neon-primary">{user.trustScore}%</span>
+                    </div>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Completed Quests</span>
-                    <span className="font-bold">0</span>
+                    <span className="text-foreground/70 font-bold tracking-wider uppercase">Completed Ops</span>
+                    <span className="font-black text-success">0</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Guild</span>
-                    <span className="font-bold text-muted-foreground">None</span>
+                    <span className="text-foreground/70 font-bold tracking-wider uppercase">Guild Status</span>
+                    <span className="font-black text-muted-foreground">SOLO</span>
                   </div>
                 </div>
 
-                <Button asChild className="w-full mt-4" variant="outline">
+                <Button asChild className="w-full mt-6 btn-anime border-2 border-primary/50" variant="outline">
                   <Link href="/profile">
-                    View Full Profile
+                    <span className="font-bold tracking-wider">VIEW PROFILE</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </Card>
 
               {/* Notifications */}
-              <Card className="glass-strong border-2 border-warning/30 p-6">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Bell className="h-5 w-5 text-warning" />
-                  Notifications
-                  <Badge className="ml-auto bg-warning/20 text-warning border-warning/30">2</Badge>
+              <Card className="nft-card glass-strong border-2 border-warning/40 p-6 hud-border overflow-hidden">
+                {/* Scan Line */}
+                <div className="scan-line" />
+                
+                <h3 className="text-lg font-black mb-4 flex items-center gap-2 tracking-wider">
+                  <div className="p-1.5 rounded-lg bg-warning/20 border-2 border-warning/40 animate-pulse-glow">
+                    <Bell className="h-4 w-4 text-warning" />
+                  </div>
+                  <span className="text-neon-warning">ALERTS</span>
+                  <Badge className="ml-auto bg-warning/30 text-warning border-2 border-warning/50 font-black px-3 animate-glow-pulse">2</Badge>
                 </h3>
                 
                 <div className="space-y-3">
-                  <div className="glass p-3 rounded-lg text-sm">
+                  <div className="glass-strong p-3 rounded-lg text-sm border-l-2 border-primary/50 hover:border-primary transition-cyber">
                     <div className="flex items-start gap-2">
                       <MessageSquare className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-medium">Welcome to GuildLancer!</p>
-                        <p className="text-xs text-muted-foreground">Check out the getting started guide</p>
+                        <p className="font-bold text-gradient-primary">Welcome to GuildLancer!</p>
+                        <p className="text-xs text-foreground/60 mt-1">Check out the getting started guide</p>
                       </div>
                     </div>
                   </div>
-                  <div className="glass p-3 rounded-lg text-sm">
+                  <div className="glass-strong p-3 rounded-lg text-sm border-l-2 border-success/50 hover:border-success transition-cyber">
                     <div className="flex items-start gap-2">
-                      <Star className="h-4 w-4 text-warning mt-0.5 shrink-0" />
+                      <Star className="h-4 w-4 text-success mt-0.5 shrink-0 animate-pulse-glow" />
                       <div>
-                        <p className="font-medium">Bonus Credits Added</p>
-                        <p className="text-xs text-muted-foreground">1,000 credits added to your account</p>
+                        <p className="font-bold text-gradient-success">Bonus Credits Added</p>
+                        <p className="text-xs text-foreground/60 mt-1">1,000 credits deployed to account</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <Button variant="ghost" className="w-full mt-4 text-xs">
-                  View All Notifications
+                <Button variant="ghost" className="w-full mt-4 text-xs font-bold tracking-wider hover:bg-warning/10 transition-cyber">
+                  VIEW ALL TRANSMISSIONS
                 </Button>
               </Card>
 
@@ -437,47 +496,50 @@ export default function DashboardClient({ user }: DashboardClientProps) {
 // Mission Card Component
 function MissionCard({ mission }: { mission: any }) {
   return (
-    <div className="glass p-6 rounded-lg border-2 border-primary/20 hover:border-primary/40 transition-all group">
+    <div className="nft-card glass-strong p-6 rounded-lg border-2 border-primary/30 hover:border-primary/60 transition-cyber group hud-border overflow-hidden">
+      {/* Scan Line */}
+      <div className="scan-line" />
+      
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-xl font-bold group-hover:text-primary transition-colors mb-2">
+          <h3 className="text-xl font-black group-hover:text-gradient-primary transition-colors mb-2">
             {mission.title}
           </h3>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Briefcase className="h-4 w-4" />
+          <div className="flex items-center gap-4 text-sm text-foreground/70">
+            <span className="flex items-center gap-2 font-bold tracking-wider uppercase">
+              <Briefcase className="h-4 w-4 text-primary" />
               {mission.client}
             </span>
-            <span className="flex items-center gap-1">
-              <Timer className="h-4 w-4" />
-              {mission.deadline} left
+            <span className="flex items-center gap-2 font-bold tracking-wider uppercase text-warning">
+              <Timer className="h-4 w-4 animate-pulse-glow" />
+              {mission.deadline} LEFT
             </span>
           </div>
         </div>
-        <Badge className="bg-warning/20 text-warning border-warning/30 shrink-0">
-          {mission.reward.toLocaleString()} credits
+        <Badge className="bg-warning/30 text-warning border-2 border-warning/50 shrink-0 font-black px-4 py-2 text-sm animate-pulse-glow">
+          {mission.reward.toLocaleString()} CR
         </Badge>
       </div>
       
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-bold text-primary">{mission.progress}%</span>
+          <span className="text-foreground/70 font-bold tracking-wider uppercase">Progress</span>
+          <span className="font-black text-neon-primary">{mission.progress}%</span>
         </div>
-        <div className="h-2 bg-background/50 rounded-full overflow-hidden">
+        <div className="h-3 bg-background/50 rounded-full overflow-hidden border border-primary/30">
           <div
-            className="h-full bg-gradient-to-r from-primary to-secondary transition-all"
+            className="h-full bg-gradient-to-r from-primary via-accent to-secondary animate-shimmer-slide"
             style={{ width: `${mission.progress}%` }}
           />
         </div>
       </div>
       
-      <div className="flex gap-3 mt-4">
-        <Button variant="outline" className="flex-1 border-primary/30" size="sm">
-          View Details
+      <div className="flex gap-3 mt-6">
+        <Button variant="outline" className="flex-1 hologram-card border-2 border-primary/50 hover:border-primary transition-cyber" size="sm">
+          <span className="font-bold tracking-wider">VIEW DETAILS</span>
         </Button>
-        <Button className="flex-1 glow-primary" size="sm">
-          Continue Work
+        <Button className="flex-1 btn-anime border-2 border-success/50" size="sm">
+          <span className="font-bold tracking-wider">CONTINUE OPS</span>
         </Button>
       </div>
     </div>
@@ -538,10 +600,10 @@ function StatCard({ icon, label, value, change, trend, color }: {
   color: 'primary' | 'secondary' | 'success' | 'warning';
 }) {
   const colorClasses = {
-    primary: 'text-primary border-primary/30',
-    secondary: 'text-secondary border-secondary/30',
-    success: 'text-success border-success/30',
-    warning: 'text-warning border-warning/30',
+    primary: { text: 'text-neon-primary', border: 'border-primary/40', bg: 'bg-primary/20', glow: 'glow-primary' },
+    secondary: { text: 'text-neon-secondary', border: 'border-secondary/40', bg: 'bg-secondary/20', glow: 'glow-secondary' },
+    success: { text: 'text-neon-success', border: 'border-success/40', bg: 'bg-success/20', glow: 'glow-success' },
+    warning: { text: 'text-warning', border: 'border-warning/40', bg: 'bg-warning/20', glow: 'glow-warning' },
   };
 
   const trendColors = {
@@ -550,14 +612,22 @@ function StatCard({ icon, label, value, change, trend, color }: {
     neutral: 'text-muted-foreground',
   };
 
+  const classes = colorClasses[color];
+
   return (
-    <Card className="glass-strong border-2 border-primary/20 p-6 hover:border-primary/40 transition-all">
-      <div className={`inline-flex p-3 rounded-lg ${colorClasses[color]} bg-${color}/5 mb-3`}>
+    <Card className={`nft-card glass-strong border-2 ${classes.border} p-6 hover:border-${color}/60 transition-cyber hud-border group overflow-hidden animate-slide-in-up`}>
+      {/* Scan Line */}
+      <div className="scan-line" />
+      
+      <div className={`inline-flex p-3 rounded-lg ${classes.bg} border-2 ${classes.border} ${classes.glow} mb-4 group-hover:scale-110 transition-cyber`}>
         {icon}
       </div>
-      <div className="text-3xl font-black text-gradient-primary mb-1">{value}</div>
-      <div className="text-sm text-muted-foreground mb-2">{label}</div>
-      <div className={`text-xs font-medium ${trendColors[trend]}`}>{change}</div>
+      <div className={`text-4xl font-black ${classes.text} mb-2 animate-hologram-glitch`}>{value}</div>
+      <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase mb-2">{label}</div>
+      <div className={`text-xs font-bold ${trendColors[trend]} flex items-center gap-1 border ${classes.border} px-2 py-1 rounded-full ${classes.bg} w-fit`}>
+        {trend === 'up' && <TrendingUp className="h-3 w-3" />}
+        {change}
+      </div>
     </Card>
   );
 }

@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, Filter, TrendingUp, Users, Shield, Star, Sparkles, Zap, Award } from 'lucide-react';
+import { Search, Filter, TrendingUp, Users, Shield, Star, Sparkles, Zap, Award, Swords, Crown, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import FloatingParticles from '@/components/FloatingParticles';
 import { useState } from 'react';
 
 // Mock data for guilds
@@ -102,47 +103,66 @@ export default function GuildsPage() {
   });
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-12 text-center space-y-6">
-          <div className="inline-block px-4 py-2 rounded-full glass border border-primary/30 text-sm font-medium mb-4 military-corners">
-            <span className="text-primary">◆</span> Guild Directory
+    <div className="relative min-h-screen pt-24 pb-16 overflow-hidden">
+      {/* Floating Particles Background */}
+      <FloatingParticles />
+      
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-circuit opacity-10 animate-grid-move" />
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[150px] animate-pulse-glow" />
+      <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-primary/6 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
+      
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Header - Anime Style */}
+        <div className="mb-16 text-center space-y-8 animate-slide-in-up">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-strong border-2 border-accent/40 text-sm font-black tracking-wider mb-4 animate-shimmer-slide hud-border">
+            <Crown className="h-5 w-5 text-accent animate-pulse-glow" />
+            <span className="text-accent">GUILD REGISTRY</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black font-heading">
-            <span className="text-gradient-primary">Elite Guilds</span>
+          <h1 className="text-6xl md:text-8xl font-black font-heading leading-tight">
+            <span className="text-neon-secondary animate-neon-flicker">ELITE</span>{' '}
+            <span className="text-gradient-accent">GUILDS</span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join forces with the best hunters. Higher trust scores unlock premium bounties.
+          <div className="flex items-center justify-center gap-4">
+            <div className="h-[2px] w-32 bg-gradient-to-r from-transparent via-accent to-accent animate-shimmer" />
+            <Swords className="text-accent h-8 w-8 animate-pulse-glow" />
+            <div className="h-[2px] w-32 bg-gradient-to-r from-accent via-accent to-transparent animate-shimmer" style={{ animationDelay: '0.5s' }} />
+          </div>
+          <p className="text-2xl text-foreground/90 max-w-3xl mx-auto leading-relaxed font-light">
+            Join forces with <span className="text-gradient-primary font-bold">legendary warriors</span>. Higher trust unlocks <span className="text-gradient-success font-bold">epic missions</span>.
           </p>
         </div>
 
-        {/* Search & Filters */}
-        <div className="mb-12 max-w-4xl mx-auto">
-          <Card className="glass-strong p-6 border-2 border-primary/30 tactical-scan">
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* Search */}
+        {/* Search & Filters - Anime Enhanced */}
+        <div className="mb-16 max-w-5xl mx-auto">
+          <Card className="nft-card glass-strong p-8 border-2 border-accent/40 hud-border overflow-hidden">
+            {/* Scan Line */}
+            <div className="scan-line" />
+            
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Search - Anime Style */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-accent animate-pulse-glow" />
                 <Input
-                  placeholder="Search guilds..."
+                  placeholder="Search for your destiny..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-background/50 border-primary/30 focus:border-primary"
+                  className="pl-14 h-14 bg-background/50 border-2 border-accent/40 focus:border-accent text-lg font-bold transition-cyber hologram-card"
                 />
               </div>
 
-              {/* Rank Filter */}
-              <div className="flex gap-2">
-                {['all', 'Platinum', 'Gold', 'Silver'].map((rank) => (
+              {/* Rank Filter - Enhanced */}
+              <div className="flex gap-3">
+                {['all', 'Platinum', 'Gold', 'Silver'].map((rank, index) => (
                   <Button
                     key={rank}
                     variant={selectedRank === rank ? 'default' : 'outline'}
-                    size="sm"
+                    size="lg"
                     onClick={() => setSelectedRank(rank)}
-                    className={selectedRank === rank ? 'glow-primary' : 'border-primary/30'}
+                    className={selectedRank === rank ? 'btn-anime border-2 border-accent/50 font-black tracking-wider' : 'hologram-card border-2 border-accent/30 hover:border-accent font-bold tracking-wider transition-cyber'}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    {rank === 'all' ? 'All' : rank}
+                    {rank === 'all' ? 'ALL' : rank.toUpperCase()}
                   </Button>
                 ))}
               </div>
@@ -174,29 +194,42 @@ export default function GuildsPage() {
           </div>
         )}
 
-        {/* CTA Section */}
-        <div className="mt-16">
-          <Card className="relative overflow-hidden border-gradient-primary p-12 holographic">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+        {/* CTA Section - Epic Anime Style */}
+        <div className="mt-20">
+          <Card className="relative overflow-hidden nft-card border-2 border-accent/40 p-16 md:p-20 hud-border">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-secondary/20 to-primary/30" />
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-circuit opacity-10 animate-shimmer-diagonal" />
             
-            <div className="relative z-10 text-center space-y-6">
-              <Sparkles className="h-16 w-16 text-primary mx-auto animate-pulse-glow" />
-              <h2 className="text-4xl md:text-5xl font-bold font-heading">
-                Ready to <span className="text-gradient-primary">Form Your Guild?</span>
+            {/* Scan Line Effect */}
+            <div className="scan-line" />
+            
+            <div className="relative z-10 text-center space-y-10">
+              <div className="relative inline-block">
+                <Flame className="h-24 w-24 text-accent mx-auto animate-pulse-glow" />
+                <div className="absolute -inset-6 bg-accent/30 rounded-full blur-2xl animate-pulse-glow" />
+              </div>
+              
+              <h2 className="text-5xl md:text-7xl font-black font-heading leading-tight">
+                <span className="text-neon-accent animate-neon-flicker">READY TO</span>
+                <br />
+                <span className="text-gradient-accent">FORGE YOUR GUILD?</span>
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Gather your team, build reputation, and unlock exclusive high-value bounties.
+              
+              <p className="text-2xl md:text-3xl text-foreground/90 max-w-3xl mx-auto leading-relaxed font-light">
+                Assemble your <span className="text-gradient-accent font-bold">legendary team</span>, build <span className="text-gradient-success font-bold">unstoppable reputation</span>, and conquer <span className="text-gradient-primary font-bold">mythic bounties</span>.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" asChild className="glow-primary text-lg h-14 px-8">
+              
+              <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
+                <Button size="lg" asChild className="btn-anime border-2 border-accent/50 text-xl h-20 px-14">
                   <Link href="/register">
-                    Create Guild
-                    <Zap className="ml-2 h-5 w-5" />
+                    <span className="font-black tracking-wider">CREATE GUILD</span>
+                    <Zap className="ml-3 h-7 w-7" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="border-2 border-primary/30 text-lg h-14 px-8">
+                <Button size="lg" variant="outline" asChild className="hologram-card border-2 border-primary/50 hover:border-primary text-xl h-20 px-14 transition-cyber">
                   <Link href="/about">
-                    Learn More
+                    <Crown className="mr-3 h-6 w-6" />
+                    <span className="font-bold tracking-wider">LEARN MORE</span>
                   </Link>
                 </Button>
               </div>

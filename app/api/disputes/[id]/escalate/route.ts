@@ -5,9 +5,10 @@ import { auth } from '@/lib/auth';
 // POST /api/disputes/[id]/escalate - Escalate dispute to next tier
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,10 +19,10 @@ export async function POST(
     let result;
     if (tier === 'ai') {
       // Escalate to AI Arbiter (Tier 2)
-      result = await requestAIAnalysis(params.id);
+      result = await requestAIAnalysis(id);
     } else if (tier === 'tribunal') {
       // Escalate to Tribunal (Tier 3)
-      result = await escalateToTribunal(params.id);
+      result = await escalateToTribunal(id);
     } else {
       return NextResponse.json({ error: 'Invalid tier. Use "ai" or "tribunal"' }, { status: 400 });
     }

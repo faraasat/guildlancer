@@ -45,7 +45,7 @@ export async function sendMessage(conversationId: string, data: SendMessageInput
         content: validated.content,
         attachments: validated.attachments || [],
         replyTo: validated.replyTo,
-        createdAt: message.createdAt,
+        createdAt: new Date().toISOString(),
       };
 
       // Determine channel based on conversation type

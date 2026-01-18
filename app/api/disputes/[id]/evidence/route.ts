@@ -5,16 +5,17 @@ import { auth } from '@/lib/auth';
 // POST /api/disputes/[id]/evidence - Submit additional evidence
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const evidenceData = await req.json();
-    const result = await submitDisputeEvidence(params.id, evidenceData);
+    const result = await submitDisputeEvidence(id, evidenceData);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });
