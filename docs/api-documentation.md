@@ -1,6 +1,7 @@
 # Nexora API Documentation
 
 ## Base URL
+
 ```
 http://localhost:3000/api
 ```
@@ -12,11 +13,13 @@ All API endpoints require authentication unless otherwise specified.
 ## Bounties API
 
 ### List Bounties
+
 **GET** `/api/bounties`
 
 Get bounties with optional filters.
 
 **Query Parameters:**
+
 - `category` (string) - Filter by category
 - `minReward` (number) - Minimum reward credits
 - `maxReward` (number) - Maximum reward credits
@@ -29,6 +32,7 @@ Get bounties with optional filters.
 - `limit` (number) - Items per page (default: 20)
 
 **Response:**
+
 ```json
 {
   "bounties": [...],
@@ -39,11 +43,13 @@ Get bounties with optional filters.
 ```
 
 ### Create Bounty
+
 **POST** `/api/bounties`
 
 Create a new bounty (Client only).
 
 **Request Body:**
+
 ```json
 {
   "title": "Build responsive landing page",
@@ -62,6 +68,7 @@ Create a new bounty (Client only).
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "bountyId": "507f1f77bcf86cd799439011"
@@ -69,11 +76,13 @@ Create a new bounty (Client only).
 ```
 
 ### Get Bounty
+
 **GET** `/api/bounties/:id`
 
 Get bounty details by ID.
 
 **Response:**
+
 ```json
 {
   "_id": "507f1f77bcf86cd799439011",
@@ -86,11 +95,13 @@ Get bounty details by ID.
 ```
 
 ### Accept Bounty
+
 **POST** `/api/bounties/:id/accept`
 
 Accept a bounty (Guild Master only).
 
 **Request Body:**
+
 ```json
 {
   "guildId": "507f1f77bcf86cd799439012"
@@ -98,6 +109,7 @@ Accept a bounty (Guild Master only).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Bounty accepted successfully"
@@ -105,11 +117,13 @@ Accept a bounty (Guild Master only).
 ```
 
 ### Submit Proof
+
 **POST** `/api/bounties/:id/submit`
 
 Submit proof of work (Hunter only).
 
 **Request Body:**
+
 ```json
 {
   "text": "Completed the landing page with all features...",
@@ -119,6 +133,7 @@ Submit proof of work (Hunter only).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Proof submitted successfully"
@@ -126,11 +141,13 @@ Submit proof of work (Hunter only).
 ```
 
 ### Review Submission
+
 **POST** `/api/bounties/:id/review`
 
 Review bounty submission (Client only).
 
 **Request Body:**
+
 ```json
 {
   "accept": true
@@ -138,6 +155,7 @@ Review bounty submission (Client only).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Bounty completed successfully"
@@ -145,11 +163,13 @@ Review bounty submission (Client only).
 ```
 
 ### My Posted Bounties
+
 **GET** `/api/bounties/my-posted`
 
 Get current user's posted bounties.
 
 **Response:**
+
 ```json
 [
   {
@@ -166,11 +186,13 @@ Get current user's posted bounties.
 ## Guilds API
 
 ### List Guilds
+
 **GET** `/api/guilds`
 
 Get guilds with optional filters.
 
 **Query Parameters:**
+
 - `rank` (string) - "Legendary" | "Elite" | "Veteran" | "Established" | "Developing"
 - `minTrustScore` (number) - Minimum trust score (0-1000)
 - `category` (string) - Filter by specialization
@@ -180,6 +202,7 @@ Get guilds with optional filters.
 - `limit` (number) - Items per page
 
 **Response:**
+
 ```json
 {
   "guilds": [...],
@@ -190,11 +213,13 @@ Get guilds with optional filters.
 ```
 
 ### Create Guild
+
 **POST** `/api/guilds`
 
 Create a new guild.
 
 **Request Body:**
+
 ```json
 {
   "name": "Elite Developers",
@@ -207,6 +232,7 @@ Create a new guild.
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "guildId": "507f1f77bcf86cd799439013"
@@ -214,11 +240,13 @@ Create a new guild.
 ```
 
 ### Get Guild
+
 **GET** `/api/guilds/:id`
 
 Get guild details with all members.
 
 **Response:**
+
 ```json
 {
   "_id": "...",
@@ -233,11 +261,13 @@ Get guild details with all members.
 ```
 
 ### Update Guild
+
 **PATCH** `/api/guilds/:id`
 
 Update guild info (Master only).
 
 **Request Body:**
+
 ```json
 {
   "description": "Updated description",
@@ -247,11 +277,13 @@ Update guild info (Master only).
 ```
 
 ### Guild Members
+
 **POST** `/api/guilds/:id/members`
 
 Join, leave, or manage guild members.
 
 **Join Guild:**
+
 ```json
 {
   "action": "join"
@@ -259,6 +291,7 @@ Join, leave, or manage guild members.
 ```
 
 **Leave Guild:**
+
 ```json
 {
   "action": "leave"
@@ -266,6 +299,7 @@ Join, leave, or manage guild members.
 ```
 
 **Promote Member:**
+
 ```json
 {
   "action": "promote",
@@ -275,6 +309,7 @@ Join, leave, or manage guild members.
 ```
 
 **Demote Officer:**
+
 ```json
 {
   "action": "demote",
@@ -283,6 +318,7 @@ Join, leave, or manage guild members.
 ```
 
 **Kick Member:**
+
 ```json
 {
   "action": "kick",
@@ -291,11 +327,13 @@ Join, leave, or manage guild members.
 ```
 
 ### Guild Stats
+
 **GET** `/api/guilds/:id/stats`
 
 Get guild statistics and analytics.
 
 **Response:**
+
 ```json
 {
   "guild": { ... },
@@ -309,11 +347,13 @@ Get guild statistics and analytics.
 ```
 
 ### My Guild
+
 **GET** `/api/guilds/my-guild`
 
 Get current user's guild.
 
 **Response:**
+
 ```json
 {
   "_id": "...",
@@ -327,11 +367,13 @@ Get current user's guild.
 ## Disputes API
 
 ### List My Disputes
+
 **GET** `/api/disputes`
 
 Get disputes where user is involved (as client or guild member).
 
 **Response:**
+
 ```json
 [
   {
@@ -346,11 +388,13 @@ Get disputes where user is involved (as client or guild member).
 ```
 
 ### Raise Dispute
+
 **POST** `/api/disputes`
 
 Raise a new dispute (Client only).
 
 **Request Body:**
+
 ```json
 {
   "bountyId": "507f1f77bcf86cd799439015",
@@ -361,6 +405,7 @@ Raise a new dispute (Client only).
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "disputeId": "507f1f77bcf86cd799439016"
@@ -368,11 +413,13 @@ Raise a new dispute (Client only).
 ```
 
 ### Get Dispute
+
 **GET** `/api/disputes/:id`
 
 Get dispute details.
 
 **Response:**
+
 ```json
 {
   "_id": "...",
@@ -387,11 +434,13 @@ Get dispute details.
 ```
 
 ### Submit Evidence
+
 **POST** `/api/disputes/:id/evidence`
 
 Submit additional evidence.
 
 **Request Body:**
+
 ```json
 {
   "evidenceText": "Additional proof...",
@@ -401,17 +450,21 @@ Submit additional evidence.
 ```
 
 ### Escalate Dispute
+
 **POST** `/api/disputes/:id/escalate`
 
 Escalate dispute to next tier.
 
 **Request Body:**
+
 ```json
 {
   "tier": "ai"
 }
 ```
+
 or
+
 ```json
 {
   "tier": "tribunal"
@@ -419,6 +472,7 @@ or
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Dispute escalated to tribunal"
@@ -426,11 +480,13 @@ or
 ```
 
 ### Cast Tribunal Vote
+
 **POST** `/api/disputes/:id/vote`
 
 Cast tribunal vote (Guild Master of juror guild only).
 
 **Request Body:**
+
 ```json
 {
   "disputeId": "507f1f77bcf86cd799439016",
@@ -440,6 +496,7 @@ Cast tribunal vote (Guild Master of juror guild only).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Vote cast successfully"
@@ -451,11 +508,13 @@ Cast tribunal vote (Guild Master of juror guild only).
 ## Messages API
 
 ### List Conversations
+
 **GET** `/api/messages`
 
 Get user's conversations.
 
 **Response:**
+
 ```json
 [
   {
@@ -479,15 +538,18 @@ Get user's conversations.
 ```
 
 ### Get Messages
+
 **GET** `/api/messages/:conversationId`
 
 Get messages for a conversation.
 
 **Query Parameters:**
+
 - `limit` (number) - Messages to fetch (default: 50)
 - `before` (string) - Message ID for pagination
 
 **Response:**
+
 ```json
 {
   "messages": [
@@ -506,11 +568,13 @@ Get messages for a conversation.
 ```
 
 ### Send Message
+
 **POST** `/api/messages/:conversationId`
 
 Send a message to a conversation.
 
 **Request Body:**
+
 ```json
 {
   "conversationId": "guild-507f1f77bcf86cd799439013",
@@ -521,6 +585,7 @@ Send a message to a conversation.
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "messageId": "507f1f77bcf86cd799439019"
@@ -528,11 +593,13 @@ Send a message to a conversation.
 ```
 
 ### Edit Message
+
 **PATCH** `/api/messages/message/:id`
 
 Edit a message (sender only).
 
 **Request Body:**
+
 ```json
 {
   "content": "Updated message content"
@@ -540,11 +607,13 @@ Edit a message (sender only).
 ```
 
 ### Delete Message
+
 **DELETE** `/api/messages/message/:id`
 
 Delete a message (sender only).
 
 **Response:**
+
 ```json
 {
   "message": "Message deleted successfully"
@@ -552,11 +621,13 @@ Delete a message (sender only).
 ```
 
 ### Add Reaction
+
 **POST** `/api/messages/message/:id/react`
 
 Add or remove reaction (toggle).
 
 **Request Body:**
+
 ```json
 {
   "emoji": "👍"
@@ -564,11 +635,13 @@ Add or remove reaction (toggle).
 ```
 
 ### Create DM Conversation
+
 **POST** `/api/messages/dm`
 
 Get or create DM conversation ID.
 
 **Request Body:**
+
 ```json
 {
   "otherUserId": "507f1f77bcf86cd799439020"
@@ -576,6 +649,7 @@ Get or create DM conversation ID.
 ```
 
 **Response:**
+
 ```json
 {
   "conversationId": "dm-507f1f77bcf86cd799439014-507f1f77bcf86cd799439020"
@@ -589,6 +663,7 @@ Get or create DM conversation ID.
 All endpoints return consistent error responses:
 
 **400 Bad Request**
+
 ```json
 {
   "error": "Validation error message"
@@ -596,6 +671,7 @@ All endpoints return consistent error responses:
 ```
 
 **401 Unauthorized**
+
 ```json
 {
   "error": "Unauthorized"
@@ -603,6 +679,7 @@ All endpoints return consistent error responses:
 ```
 
 **404 Not Found**
+
 ```json
 {
   "error": "Resource not found"
@@ -610,6 +687,7 @@ All endpoints return consistent error responses:
 ```
 
 **500 Internal Server Error**
+
 ```json
 {
   "error": "Internal server error"
@@ -629,6 +707,7 @@ Currently no rate limiting is implemented. This should be added in production us
 All API routes use NextAuth session authentication. Include the session cookie in requests.
 
 For direct API calls (not from browser):
+
 ```bash
 curl -X POST http://localhost:3000/api/bounties \
   -H "Content-Type: application/json" \
@@ -643,6 +722,7 @@ curl -X POST http://localhost:3000/api/bounties \
 ### Create and Accept Bounty Flow
 
 1. **Client creates bounty:**
+
 ```bash
 POST /api/bounties
 {
@@ -656,6 +736,7 @@ POST /api/bounties
 ```
 
 2. **Guild Master accepts:**
+
 ```bash
 POST /api/bounties/507f1f77bcf86cd799439011/accept
 {
@@ -665,6 +746,7 @@ POST /api/bounties/507f1f77bcf86cd799439011/accept
 ```
 
 3. **Hunter submits proof:**
+
 ```bash
 POST /api/bounties/507f1f77bcf86cd799439011/submit
 {
@@ -676,6 +758,7 @@ POST /api/bounties/507f1f77bcf86cd799439011/submit
 ```
 
 4. **Client reviews:**
+
 ```bash
 POST /api/bounties/507f1f77bcf86cd799439011/review
 {
@@ -687,6 +770,7 @@ POST /api/bounties/507f1f77bcf86cd799439011/review
 ### Dispute Flow
 
 1. **Client rejects and raises dispute:**
+
 ```bash
 POST /api/bounties/507f1f77bcf86cd799439011/review
 { "accept": false }
@@ -700,6 +784,7 @@ POST /api/disputes
 ```
 
 2. **Guild submits counter-evidence:**
+
 ```bash
 POST /api/disputes/507f1f77bcf86cd799439016/evidence
 {
@@ -708,12 +793,14 @@ POST /api/disputes/507f1f77bcf86cd799439016/evidence
 ```
 
 3. **Escalate to Tribunal:**
+
 ```bash
 POST /api/disputes/507f1f77bcf86cd799439016/escalate
 { "tier": "tribunal" }
 ```
 
 4. **Jurors vote:**
+
 ```bash
 POST /api/disputes/507f1f77bcf86cd799439016/vote
 {
@@ -727,6 +814,7 @@ POST /api/disputes/507f1f77bcf86cd799439016/vote
 ## Summary
 
 **Total API Routes**: 21
+
 - Bounties: 6 routes
 - Guilds: 5 routes
 - Disputes: 5 routes

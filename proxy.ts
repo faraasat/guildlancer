@@ -18,7 +18,7 @@ const protectedRoutes = [
 // Routes that logged-in users shouldn't access
 const authRoutes = ['/login', '/register'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Check if user is authenticated
@@ -42,7 +42,6 @@ export async function middleware(request: NextRequest) {
 
 // Use nodejs runtime instead of edge to support crypto module
 export const config = {
-  runtime: 'nodejs',
   matcher: [
     /*
      * Match all request paths except:
@@ -52,5 +51,5 @@ export const config = {
      * - public folder
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  ]
 };
