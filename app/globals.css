@@ -281,7 +281,7 @@ h1, h2, h3, h4, h5, h6 {
   .border-gradient-primary {
     position: relative;
     border: 2px solid transparent;
-    background: linear-gradient(rgb(var(--card-foreground)), rgb(var(--card-foreground))) padding-box,
+    background: linear-gradient(rgb(var(--card)), rgb(var(--card))) padding-box,
                 linear-gradient(135deg, rgb(var(--primary)), rgb(var(--secondary))) border-box;
   }
   
