@@ -14,9 +14,10 @@ import {
 import { isGroqConfigured } from "@/lib/ai/groq";
 import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
-import Bounty from "@/lib/models/Bounty";
-import Dispute from "@/lib/models/Dispute";
-import User from "@/lib/models/User";
+import Bounty from "@/lib/db/models/Bounty";
+import Dispute from "@/lib/db/models/Dispute";
+import { User } from "@/lib/db/models/User";
+import cache, { CacheKeys, CacheTTL } from "@/lib/cache";
 
 /**
  * Match bounty to top guilds using AI
@@ -221,7 +222,17 @@ export async function getPersonalizedInsights(
       };
     }
 
+    // Check cache first (24-hour TTL)
+    const cacheKey = CacheKeys.aiInsights(userId);
+    const cached = cache.get<PersonalizedInsights>(cacheKey);
+    if (cached) {
+      return { success: true, data: cached };
+    }
+
     const insights = await generatePersonalizedRecommendations(userId);
+
+    // Cache the result
+    cache.set(cacheKey, insights, CacheTTL.DAY);
 
     return { success: true, data: insights };
   } catch (error: any) {
@@ -242,7 +253,18 @@ export async function getTrendingBountyCategories(): Promise<{
   error?: string;
 }> {
   try {
+    // Check cache first (1-hour TTL)
+    const cacheKey = CacheKeys.trendingCategories();
+    const cached = cache.get<Array<{ category: string; count: number; avgReward: number }>>(cacheKey);
+    if (cached) {
+      return { success: true, data: cached };
+    }
+
     const trending = await getTrendingCategories();
+
+    // Cache the result
+    cache.set(cacheKey, trending, CacheTTL.LONG);
+
     return { success: true, data: trending };
   } catch (error: any) {
     console.error("Get trending categories error:", error);

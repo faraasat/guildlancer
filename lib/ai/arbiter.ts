@@ -3,10 +3,10 @@
 
 import { callGroqJSON, GroqModels, truncateToTokens } from "./groq";
 import { connectDB } from "@/lib/db";
-import Dispute from "@/lib/models/Dispute";
-import Bounty from "@/lib/models/Bounty";
-import Guild from "@/lib/models/Guild";
-import User from "@/lib/models/User";
+import Dispute from "@/lib/db/models/Dispute";
+import Bounty from "@/lib/db/models/Bounty";
+import Guild from "@/lib/db/models/Guild";
+import { User } from "@/lib/db/models/User";
 
 export type DisputeRuling = "ClientWins" | "GuildWins" | "Split";
 

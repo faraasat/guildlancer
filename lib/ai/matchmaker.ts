@@ -3,9 +3,9 @@
 
 import { callGroqJSON, GroqModels, truncateToTokens } from "./groq";
 import { connectDB } from "@/lib/db";
-import Bounty from "@/lib/models/Bounty";
-import Guild from "@/lib/models/Guild";
-import User from "@/lib/models/User";
+import Bounty from "@/lib/db/models/Bounty";
+import Guild from "@/lib/db/models/Guild";
+import { User } from "@/lib/db/models/User";
 
 export interface GuildMatch {
   guildId: string;

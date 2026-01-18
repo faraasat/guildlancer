@@ -3,11 +3,11 @@
 
 import { callGroqJSON, GroqModels } from "./groq";
 import { connectDB } from "@/lib/db";
-import Guild from "@/lib/models/Guild";
-import User from "@/lib/models/User";
-import Dispute from "@/lib/models/Dispute";
-import Activity from "@/lib/models/Activity";
-import Transaction from "@/lib/models/Transaction";
+import Guild from "@/lib/db/models/Guild";
+import { User } from "@/lib/db/models/User";
+import Dispute from "@/lib/db/models/Dispute";
+import Activity from "@/lib/db/models/Activity";
+import Transaction from "@/lib/db/models/Transaction";
 
 export interface AnomalyDetection {
   entityId: string;

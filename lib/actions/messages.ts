@@ -7,6 +7,7 @@ import { User } from '@/lib/db/models/User';
 import { sendMessageSchema, type SendMessageInput } from '@/lib/validations/backend';
 import { auth } from '@/lib/auth';
 import mongoose from 'mongoose';
+import { triggerEvent, PusherChannels, PusherEvents, isPusherConfigured } from '@/lib/realtime/pusher-server';
 
 // Send a message
 export async function sendMessage(conversationId: string, data: SendMessageInput) {
@@ -34,6 +35,33 @@ export async function sendMessage(conversationId: string, data: SendMessageInput
       attachments: validated.attachments || [],
       replyTo: validated.replyTo ? new mongoose.Types.ObjectId(validated.replyTo) : undefined,
     });
+
+    // Trigger real-time event
+    if (isPusherConfigured()) {
+      const messageData = {
+        id: message._id.toString(),
+        conversationId,
+        senderId: session.user.id,
+        content: validated.content,
+        attachments: validated.attachments || [],
+        replyTo: validated.replyTo,
+        createdAt: message.createdAt,
+      };
+
+      // Determine channel based on conversation type
+      let channel: string;
+      if (conversationId.startsWith('guild-')) {
+        channel = PusherChannels.guild(conversationId.replace('guild-', ''));
+      } else if (conversationId.startsWith('dm-')) {
+        channel = PusherChannels.dm(conversationId.split('-')[1], conversationId.split('-')[2]);
+      } else if (conversationId.startsWith('dispute-')) {
+        channel = PusherChannels.dispute(conversationId.replace('dispute-', ''));
+      } else {
+        channel = conversationId; // Fallback
+      }
+
+      await triggerEvent(channel, PusherEvents.MESSAGE_NEW, messageData);
+    }
 
     return { success: true, data: { messageId: message._id.toString() } };
   } catch (error: any) {

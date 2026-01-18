@@ -3,11 +3,11 @@
 
 import { callGroqJSON, GroqModels, truncateToTokens } from "./groq";
 import { connectDB } from "@/lib/db";
-import User from "@/lib/models/User";
-import Bounty from "@/lib/models/Bounty";
-import Guild from "@/lib/models/Guild";
-import Activity from "@/lib/models/Activity";
-import Dispute from "@/lib/models/Dispute";
+import { User } from "@/lib/db/models/User";
+import Bounty from "@/lib/db/models/Bounty";
+import Guild from "@/lib/db/models/Guild";
+import Activity from "@/lib/db/models/Activity";
+import Dispute from "@/lib/db/models/Dispute";
 
 export interface SkillRecommendation {
   skill: string;
