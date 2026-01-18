@@ -55,7 +55,7 @@ export function Navbar() {
                     <div className="text-2xl">{session.user.avatar || '👤'}</div>
                     <span className="max-w-25 truncate">{session.user.username}</span>
                   </Button>
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-card/95 border border-border/60 rounded-lg p-2 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white/30 border border-border/60 backdrop-blur-2xl rounded-lg p-2 shadow-xl invisible group-hover:opacity-100 group-hover:visible transition-all">
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
