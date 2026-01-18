@@ -3,6 +3,7 @@ import { Space_Grotesk, Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { SessionProvider } from "next-auth/react";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-sans",
@@ -38,9 +39,11 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${orbitron.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <Navbar />
-        <main className="min-h-screen pt-16">{children}</main>
-        <Footer />
+        <SessionProvider>
+          <Navbar />
+          <main className="min-h-screen pt-16">{children}</main>
+          <Footer />
+        </SessionProvider>
       </body>
     </html>
   );

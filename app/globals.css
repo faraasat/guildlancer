@@ -146,19 +146,58 @@
     box-shadow: 0 0 30px rgba(var(--success), 0.6), 0 0 60px rgba(var(--success), 0.4);
   }
   
-  /* Premium Glassmorphism */
+  /* NFT/Military Glassmorphism - Vibrant Neon */
   .glass {
-    background: rgba(15, 15, 28, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(240, 248, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    background: linear-gradient(135deg, rgba(0, 230, 255, 0.08) 0%, rgba(138, 43, 226, 0.08) 100%);
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.1);
+    border: 1px solid rgba(0, 230, 255, 0.3);
+    box-shadow: 
+      0 0 30px rgba(0, 230, 255, 0.15),
+      inset 0 0 30px rgba(0, 230, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+  }
+  
+  .glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(0, 230, 255, 0.5), rgba(138, 43, 226, 0.5), rgba(255, 20, 147, 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.4;
+    pointer-events: none;
   }
   
   .glass-strong {
-    background: rgba(15, 15, 28, 0.85);
-    backdrop-filter: blur(30px) saturate(200%);
-    border: 1px solid rgba(240, 248, 255, 0.15);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, rgba(0, 230, 255, 0.12) 0%, rgba(138, 43, 226, 0.12) 50%, rgba(255, 20, 147, 0.12) 100%);
+    backdrop-filter: blur(30px) saturate(200%) brightness(1.15);
+    border: 2px solid rgba(0, 230, 255, 0.4);
+    box-shadow: 
+      0 0 40px rgba(0, 230, 255, 0.25),
+      0 0 80px rgba(138, 43, 226, 0.2),
+      inset 0 0 40px rgba(0, 230, 255, 0.08),
+      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+    position: relative;
+  }
+  
+  .glass-strong::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(0, 230, 255, 0.7), rgba(138, 43, 226, 0.7), rgba(255, 20, 147, 0.7));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.6;
+    pointer-events: none;
   }
   
   /* Gradient Text Variations */
