@@ -62,7 +62,16 @@ const mockTransactions = [
   },
 ];
 
-const mockStakes: any[] = [];
+// Mock stakes data
+interface Stake {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+}
+
+const mockStakes: Stake[] = [];
 
 const cashFlowData = [
   { month: 'Jan', income: 0, expenses: 0 },
@@ -156,7 +165,7 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
                     <Tooltip
                       contentStyle={{
                         backgroundColor: '#1a1a24',
-                        border: '1px solid #00e6ff',
+                        border: '1px solid #3B82F6',
                         borderRadius: '8px',
                       }}
                     />
@@ -164,14 +173,14 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
                     <Line
                       type="monotone"
                       dataKey="income"
-                      stroke="#00e6ff"
+                      stroke="#3B82F6"
                       strokeWidth={2}
                       name="Income"
                     />
                     <Line
                       type="monotone"
                       dataKey="expenses"
-                      stroke="#ff00e5"
+                      stroke="#F97316"
                       strokeWidth={2}
                       name="Expenses"
                     />
@@ -345,21 +354,21 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
                       <Tooltip
                         contentStyle={{
                           backgroundColor: '#1a1a24',
-                          border: '1px solid #8b00ff',
+                          border: '1px solid #A855F7',
                           borderRadius: '8px',
                         }}
                       />
                       <Area
                         type="monotone"
                         dataKey="roi"
-                        stroke="#8b00ff"
+                        stroke="#A855F7"
                         fill="url(#roiGradient)"
                         strokeWidth={2}
                       />
                       <defs>
                         <linearGradient id="roiGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b00ff" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#8b00ff" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#A855F7" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#A855F7" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                     </AreaChart>

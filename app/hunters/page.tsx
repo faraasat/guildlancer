@@ -8,95 +8,95 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 
-// Mock data for hunters
+// Mock data for hunters - Diverse real-world bounty hunters
 const mockHunters = [
   {
     id: 1,
-    name: 'CipherMaster',
-    avatar: '👤',
-    tagline: 'Security Architect & Penetration Tester',
-    guild: 'Cyber Syndicate',
+    name: 'Tracker Morgan',
+    avatar: '🔍',
+    tagline: 'Missing Persons & Asset Recovery Specialist',
+    guild: 'Apex Trackers',
     trustScore: 99.2,
     rank: 'Legendary',
     completedQuests: 143,
-    specialties: ['Security', 'Infrastructure', 'Blockchain'],
+    specialties: ['Missing Persons', 'Asset Recovery', 'Investigation'],
     powerLevel: 3456,
     color: 'primary'
   },
   {
     id: 2,
-    name: 'NeonSamurai',
-    avatar: '⚔️',
-    tagline: 'Full-Stack Warrior',
-    guild: 'Neon Knights',
+    name: 'Agent Cipher',
+    avatar: '🕵️',
+    tagline: 'Digital Forensics Expert',
+    guild: 'Digital Forensics Unit',
     trustScore: 98.8,
     rank: 'Legendary',
     completedQuests: 128,
-    specialties: ['Frontend', 'Backend', 'DevOps'],
+    specialties: ['Forensic Analysis', 'Cyber Crime', 'Evidence Recovery'],
     powerLevel: 3287,
     color: 'secondary'
   },
   {
     id: 3,
-    name: 'QuantumSage',
-    avatar: '🧙',
-    tagline: 'AI/ML Specialist',
-    guild: 'Data Dragons',
+    name: 'Veritas',
+    avatar: '⚖️',
+    tagline: 'Fact Checker & Verification Specialist',
+    guild: 'Truth Seekers',
     trustScore: 98.5,
     rank: 'Master',
     completedQuests: 115,
-    specialties: ['Machine Learning', 'Data Science', 'Python'],
+    specialties: ['Fact Verification', 'Background Checks', 'Due Diligence'],
     powerLevel: 3142,
     color: 'accent'
   },
   {
     id: 4,
-    name: 'ByteNinja',
-    avatar: '🥷',
-    tagline: 'Stealth Code Specialist',
-    guild: 'Shadow Protocol',
+    name: 'Shadow Wolf',
+    avatar: '🐺',
+    tagline: 'Fugitive Recovery Agent',
+    guild: 'Shadow Stalkers',
     trustScore: 97.9,
     rank: 'Master',
     completedQuests: 98,
-    specialties: ['Security', 'Reverse Engineering', 'C++'],
+    specialties: ['Fugitive Recovery', 'Surveillance', 'Skip Tracing'],
     powerLevel: 2956,
     color: 'success'
   },
   {
     id: 5,
-    name: 'CryptoPhoenix',
-    avatar: '🔥',
-    tagline: 'Blockchain Expert',
-    guild: 'Quantum Collective',
+    name: 'Neighborhood Hero',
+    avatar: '🦸',
+    tagline: 'Local Task & Assistance Expert',
+    guild: 'Local Heroes',
     trustScore: 97.4,
     rank: 'Master',
     completedQuests: 92,
-    specialties: ['Smart Contracts', 'DeFi', 'Solidity'],
+    specialties: ['Local Errands', 'Community Help', 'Delivery'],
     powerLevel: 2843,
     color: 'warning'
   },
   {
     id: 6,
-    name: 'CodeViper',
-    avatar: '🐍',
-    tagline: 'Python Architect',
-    guild: 'Cyber Syndicate',
+    name: 'InfoHawk',
+    avatar: '🦅',
+    tagline: 'OSINT & Intelligence Gatherer',
+    guild: 'InfoHawks',
     trustScore: 96.8,
     rank: 'Expert',
     completedQuests: 87,
-    specialties: ['Python', 'API Design', 'Microservices'],
+    specialties: ['OSINT', 'Research', 'Intelligence Gathering'],
     powerLevel: 2714,
     color: 'primary'
   }
 ];
 
 const topSkills = [
-  { skill: 'Security', count: 234, color: 'primary' },
-  { skill: 'Full-Stack', count: 189, color: 'secondary' },
-  { skill: 'Blockchain', count: 156, color: 'accent' },
-  { skill: 'AI/ML', count: 142, color: 'success' },
-  { skill: 'DevOps', count: 128, color: 'warning' },
-  { skill: 'Mobile', count: 98, color: 'primary' },
+  { skill: 'Investigation', count: 234, color: 'primary' },
+  { skill: 'Verification', count: 189, color: 'secondary' },
+  { skill: 'Surveillance', count: 156, color: 'accent' },
+  { skill: 'Research', count: 142, color: 'success' },
+  { skill: 'Local Tasks', count: 128, color: 'warning' },
+  { skill: 'Forensics', count: 98, color: 'primary' },
 ];
 
 export default function HuntersPage() {
@@ -188,7 +188,7 @@ export default function HuntersPage() {
         {/* CTA Section */}
         <div className="mt-16">
           <Card className="relative overflow-hidden border-gradient-primary p-12 holographic">
-            <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-transparent to-accent/10" />
+            <div className="absolute inset-0 bg-linear-to-br from-secondary/10 via-transparent to-accent/10" />
             
             <div className="relative z-10 text-center space-y-6">
               <Star className="h-16 w-16 text-secondary mx-auto animate-pulse-glow" />
@@ -261,7 +261,7 @@ function HunterCard({ hunter }: { hunter: any }) {
   return (
     <Link href={`/hunters/${hunter.id}`}>
       <Card className="relative group overflow-hidden glass-strong border-2 border-primary/20 hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 tactical-scan">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-50 group-hover:opacity-70 transition-opacity" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-secondary/10 opacity-50 group-hover:opacity-70 transition-opacity" />
         
         <div className="relative p-6 space-y-4">
           <div className="flex items-start justify-between">

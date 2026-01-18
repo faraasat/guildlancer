@@ -35,7 +35,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Decentralized trust. Community governance. Boundless opportunities.
+              Guildified trust. Community governance. Boundless opportunities.
             </p>
             <div className="flex gap-4">
               <a

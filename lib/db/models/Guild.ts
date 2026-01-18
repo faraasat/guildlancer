@@ -131,8 +131,7 @@ const GuildSchema = new Schema<IGuild>({
   timestamps: true,
 });
 
-// Indexes
-GuildSchema.index({ name: 1 });
+// Indexes (name already indexed via unique: true)
 GuildSchema.index({ trustScore: -1 });
 GuildSchema.index({ rank: 1 });
 GuildSchema.index({ masterId: 1 });

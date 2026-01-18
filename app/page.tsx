@@ -5,38 +5,17 @@ import { ArrowRight, Users, Target, Shield, Zap, Sparkles, TrendingUp, Hexagon, 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import FloatingParticles from '@/components/FloatingParticles';
 
 export default function HomePage() {
   return (
     <div className="relative overflow-hidden">
-      {/* Floating Particles Background */}
-      <FloatingParticles />
-      
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center">
-        {/* Animated Grid Background */}
-        <div className="absolute inset-0 bg-grid opacity-30 animate-grid-move" />
-        
-        {/* Multiple Radial Gradients - Enhanced */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] animate-pulse-glow" />
-          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '2s' }} />
-        </div>
-
-        {/* Floating Geometric Shapes - Enhanced */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <Hexagon className="absolute w-24 h-24 text-primary/30 animate-float glow-primary" style={{ top: '12%', left: '6%', animationDuration: '8s' }} />
-          <Hexagon className="absolute w-20 h-20 text-secondary/30 animate-float glow-secondary" style={{ top: '65%', right: '8%', animationDuration: '10s', animationDelay: '1s' }} />
-          <Hexagon className="absolute w-28 h-28 text-accent/30 animate-float glow-accent" style={{ bottom: '15%', left: '80%', animationDuration: '12s', animationDelay: '2s' }} />
-          <Terminal className="absolute w-16 h-16 text-success/40 animate-float animate-neon-flicker" style={{ top: '35%', right: '12%', animationDuration: '7s' }} />
-          <Crosshair className="absolute w-20 h-20 text-primary/40 animate-radar-sweep" style={{ bottom: '25%', right: '85%' }} />
-        </div>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto text-center space-y-12">
             {/* Animated Badge - Enhanced */}
-            <div className="inline-flex items-center gap-3 px-8 py-4 rounded-full glass-strong border-2 border-primary/50 text-sm font-medium animate-slide-in-up hud-border scan-line">
+            <div className="inline-flex items-center gap-3 mt-10 px-8 py-4 rounded-full glass-strong border-2 border-primary/50 text-sm font-medium animate-slide-in-up hud-border text-foreground">
               <Zap className="h-6 w-6 text-primary animate-glow-pulse" />
               <span className="font-semibold tracking-wide">COMMUNITY-GOVERNED</span>
               <span className="text-primary/60">•</span>
@@ -48,21 +27,21 @@ export default function HomePage() {
             {/* Main Heading - Enhanced with Neon */}
             <div className="space-y-6 animate-fade-in">
               <h1 className="text-7xl md:text-9xl font-black font-heading tracking-tighter leading-none">
-                <span className="text-neon-primary animate-neon-flicker">DECENTRALIZED</span>
+                <span className="text-neon-primary animate-neon-flicker">GUILDIFIED</span>
                 <br />
                 <span className="text-gradient-primary">TRUST PROTOCOL</span>
               </h1>
               <div className="flex items-center justify-center gap-6">
-                <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-primary to-transparent animate-shimmer" />
+                <div className="h-0.5 w-24 bg-linear-to-r from-transparent via-primary to-transparent" />
                 <Sparkles className="text-primary h-8 w-8 animate-pulse-glow" />
-                <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-primary to-transparent animate-shimmer" />
+                <div className="h-0.5 w-24 bg-linear-to-r from-transparent via-primary to-transparent" />
               </div>
             </div>
 
             {/* Enhanced Subheading */}
             <p className="text-2xl md:text-4xl text-foreground/90 max-w-4xl mx-auto leading-relaxed font-light animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
-              Join elite <span className="text-gradient-primary font-bold">guilds</span>, conquer tactical{' '}
-              <span className="text-gradient-accent font-bold">missions</span>, and earn legendary{' '}
+              Join elite <span className="text-gradient-primary font-bold">guilds</span>, solve real-world{' '}
+              <span className="text-gradient-accent font-bold">bounties</span>, and earn legendary{' '}
               <span className="text-gradient-success font-bold">reputation</span> in the network
             </p>
 
@@ -96,46 +75,29 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Enhanced Scan Line Effect */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent h-[2px] animate-scan" />
-        </div>
-        
-        {/* Corner HUD Elements */}
-        <div className="absolute top-8 left-8 w-16 h-16 border-l-2 border-t-2 border-primary/40 animate-fade-in" />
-        <div className="absolute top-8 right-8 w-16 h-16 border-r-2 border-t-2 border-primary/40 animate-fade-in" />
-        <div className="absolute bottom-8 left-8 w-16 h-16 border-l-2 border-b-2 border-primary/40 animate-fade-in" />
-        <div className="absolute bottom-8 right-8 w-16 h-16 border-r-2 border-b-2 border-primary/40 animate-fade-in" />
       </section>
 
       {/* Features Section with Enhanced Cards */}
       <section className="py-32 relative">
-        {/* Animated Background Grid */}
-        <div className="absolute inset-0 bg-circuit opacity-10 animate-grid-move" />
-        
-        {/* Floating Gradient Blobs */}
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-accent/8 rounded-full blur-[120px] animate-pulse-glow" />
-        <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
-        
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-20 space-y-6">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-strong hud-border border-2 border-primary/40 text-sm font-bold tracking-wider mb-4 animate-shimmer-slide">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-strong hud-border border-2 border-primary/40 text-sm font-bold tracking-wider mb-4">
               <Crosshair className="h-5 w-5 text-primary animate-radar-sweep" />
-              <span className="text-primary">TACTICAL OPERATIONS</span>
+              <span className="text-primary">HOW IT WORKS</span>
             </div>
             <h2 className="text-6xl md:text-7xl font-black font-heading tracking-tight">
-              <span className="text-neon-secondary">MISSION</span>{' '}
-              <span className="text-gradient-accent">PROTOCOL</span>
+              <span className="text-neon-secondary">BOUNTY</span>{' '}
+              <span className="text-gradient-accent">SYSTEM</span>
             </h2>
             <p className="text-2xl text-foreground/80 max-w-3xl mx-auto leading-relaxed">
-              A revolutionary combat system where <span className="text-gradient-primary font-bold">reputation</span> is earned through <span className="text-gradient-success font-bold">action</span>
+              A revolutionary platform where <span className="text-gradient-primary font-bold">trust</span> is earned through <span className="text-gradient-success font-bold">results</span>
             </p>
             
             {/* Decorative Line */}
             <div className="flex items-center justify-center gap-4 pt-4">
-              <div className="h-[2px] w-32 bg-gradient-to-r from-transparent via-primary to-primary animate-shimmer" />
+              <div className="h-0.5 w-32 bg-linear-to-r from-transparent via-primary to-primary" />
               <Terminal className="text-primary h-6 w-6 animate-pulse-glow" />
-              <div className="h-[2px] w-32 bg-gradient-to-r from-primary via-primary to-transparent animate-shimmer" style={{ animationDelay: '0.5s' }} />
+              <div className="h-0.5 w-32 bg-linear-to-r from-primary via-primary to-transparent" />
             </div>
           </div>
 
@@ -143,21 +105,21 @@ export default function HomePage() {
             <FeatureCard
               icon={<Users className="h-12 w-12" />}
               title="JOIN A GUILD"
-              description="Form elite squads with other operators. Collective reputation, shared treasury, and coordinated tactical operations."
+              description="Form specialized teams with other hunters. Collective reputation, shared treasury, and coordinated task resolution."
               color="primary"
               step="01"
             />
             <FeatureCard
               icon={<Target className="h-12 w-12" />}
               title="ACCEPT BOUNTIES"
-              description="Deploy resources to secure missions. Higher stakes unlock advanced contracts and exclusive operations."
+              description="Stake resources to secure tasks. Higher trust unlocks premium contracts and exclusive opportunities."
               color="secondary"
               step="02"
             />
             <FeatureCard
               icon={<Shield className="h-12 w-12" />}
               title="BUILD TRUST"
-              description="Complete objectives, resolve conflicts with honor, and ascend the ranks. Reputation is your legacy."
+              description="Complete tasks, resolve conflicts fairly, and climb the ranks. Reputation is everything."
               color="accent"
               step="03"
             />
@@ -167,14 +129,6 @@ export default function HomePage() {
 
       {/* Enhanced Stats Grid */}
       <section className="py-32 relative">
-        {/* Military HUD Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
-        <div className="absolute inset-0 bg-grid-small opacity-20 animate-grid-move" />
-        
-        {/* Radar Ping Effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/20 rounded-full radar-ping" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary/20 rounded-full radar-ping" style={{ animationDelay: '1s' }} />
-        
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16 space-y-4">
             <h3 className="text-5xl font-black font-heading tracking-tight">
@@ -182,9 +136,9 @@ export default function HomePage() {
               <span className="text-gradient-accent">STATISTICS</span>
             </h3>
             <div className="flex items-center justify-center gap-4">
-              <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-success to-transparent animate-shimmer" />
+              <div className="h-0.5 w-24 bg-linear-to-r from-transparent via-success to-transparent" />
               <Crosshair className="text-success h-6 w-6 animate-radar-sweep" />
-              <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-success to-transparent animate-shimmer" />
+              <div className="h-0.5 w-24 bg-linear-to-r from-transparent via-success to-transparent" />
             </div>
           </div>
           
@@ -199,20 +153,9 @@ export default function HomePage() {
 
       {/* Enhanced CTA Section */}
       <section className="py-32 relative">
-        {/* Animated Background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-circuit opacity-10 animate-grid-rotate" />
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px] animate-pulse-glow" />
-          <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
-        </div>
-        
         <div className="container mx-auto px-4 relative z-10">
           <Card className="relative overflow-hidden nft-card border-2 border-primary/30 p-12 md:p-20 hud-border">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20" />
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-grid opacity-10 animate-shimmer-diagonal" />
-            
-            {/* Scan Line Effect */}
-            <div className="scan-line" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-transparent to-secondary/20" />
             
             <div className="relative z-10 text-center space-y-10">
               <div className="inline-block">
@@ -279,53 +222,41 @@ function LiveStats() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 animate-slide-in-up" style={{ animationDelay: '0.6s' }}>
       <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-cyber animate-pulse-glow" />
         <div className="relative nft-card glass-strong p-6 rounded-2xl border-2 border-primary/40 group-hover:border-primary/70 transition-cyber hud-border">
           <div className="text-5xl font-black text-neon-primary mb-2 animate-hologram-glitch">{stats.guilds}</div>
           <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Active Guilds</div>
           <div className="absolute top-4 right-4">
-            <div className="w-3 h-3 bg-primary rounded-full animate-glow-pulse radar-ping" />
+            <div className="w-3 h-3 bg-primary rounded-full" />
           </div>
-          {/* Scan Line */}
-          <div className="scan-line" />
         </div>
       </div>
       
       <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-cyber animate-pulse-glow" style={{ animationDelay: '0.2s' }} />
         <div className="relative nft-card glass-strong p-6 rounded-2xl border-2 border-secondary/40 group-hover:border-secondary/70 transition-cyber hud-border">
           <div className="text-5xl font-black text-neon-secondary mb-2 animate-hologram-glitch">{stats.bounties.toLocaleString()}</div>
           <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Total Bounties</div>
           <div className="absolute top-4 right-4">
-            <div className="w-3 h-3 bg-secondary rounded-full animate-glow-pulse radar-ping" />
+            <div className="w-3 h-3 bg-secondary rounded-full" />
           </div>
-          {/* Scan Line */}
-          <div className="scan-line" />
         </div>
         </div>
       <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/30 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-cyber animate-pulse-glow" style={{ animationDelay: '0.4s' }} />
         <div className="relative nft-card glass-strong p-6 rounded-2xl border-2 border-accent/40 group-hover:border-accent/70 transition-cyber hud-border">
           <div className="text-5xl font-black text-neon-accent mb-2 animate-hologram-glitch">{stats.hunters.toLocaleString()}</div>
           <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Active Hunters</div>
           <div className="absolute top-4 right-4">
-            <div className="w-3 h-3 bg-accent rounded-full animate-glow-pulse radar-ping" />
+            <div className="w-3 h-3 bg-accent rounded-full" />
           </div>
-          {/* Scan Line */}
-          <div className="scan-line" />
         </div>
       </div>
       
       <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-br from-success/30 to-transparent rounded-2xl blur-xl group-hover:blur-2xl transition-cyber animate-pulse-glow" style={{ animationDelay: '0.6s' }} />
         <div className="relative nft-card glass-strong p-6 rounded-2xl border-2 border-success/40 group-hover:border-success/70 transition-cyber hud-border">
           <div className="text-5xl font-black text-neon-success mb-2 animate-hologram-glitch">{(stats.staked / 1000000).toFixed(1)}M</div>
           <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Credits Staked</div>
           <div className="absolute top-4 right-4">
-            <div className="w-3 h-3 bg-success rounded-full animate-glow-pulse radar-ping" />
+            <div className="w-3 h-3 bg-success rounded-full" />
           </div>
-          {/* Scan Line */}
-          <div className="scan-line" />
         </div>
       </div>
     </div>
@@ -377,14 +308,8 @@ function FeatureCard({ icon, title, description, color, step }: FeatureCardProps
         </div>
       </div>
 
-      {/* Enhanced Gradient Glow on Hover */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${classes.glow} to-transparent opacity-0 group-hover:opacity-100 transition-cyber`} />
-      
-      {/* Scan Line Effect */}
-      <div className="scan-line" />
-      
-      {/* Shimmer Effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      {/* Static Background Overlay */}
+      <div className={`absolute inset-0 ${classes.bg} opacity-10`} />
 
       <div className="relative p-10 space-y-6">
         {/* Icon - Enhanced */}
@@ -419,7 +344,7 @@ interface StatCardProps {
 function StatCard({ label, value, icon, trend }: StatCardProps) {
   return (
     <div className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-cyber animate-pulse-glow" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-secondary/20 to-accent/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-cyber animate-pulse-glow" />
       
       <Card className="relative nft-card glass-strong border-2 border-primary/30 group-hover:border-primary/60 p-10 transition-cyber hover:-translate-y-2 hover:scale-105 animate-slide-in-up hud-border">
         <div className="flex items-start justify-between mb-6">
@@ -431,9 +356,6 @@ function StatCard({ label, value, icon, trend }: StatCardProps) {
             {trend}
           </div>
         </div>
-        
-        {/* Scan Line */}
-        <div className="scan-line" />
         
         <div className="space-y-3">
           <div className="text-6xl font-black text-gradient-primary font-heading animate-hologram-glitch">

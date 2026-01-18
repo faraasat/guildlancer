@@ -26,7 +26,7 @@ export default function AboutPage() {
         {/* The Problem */}
         <section className="mb-20">
           <Card className="glass-strong border-2 border-destructive/30 p-12 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-br from-destructive/10 to-transparent" />
             <div className="relative z-10">
               <h2 className="text-4xl font-bold mb-6 text-center">
                 ⚠️ The Problem with Traditional Freelancing
@@ -173,7 +173,7 @@ export default function AboutPage() {
         {/* CTA */}
         <section>
           <Card className="relative overflow-hidden border-gradient-primary p-16 holographic">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+            <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-secondary/10" />
             
             <div className="relative z-10 text-center space-y-6">
               <Sparkles className="h-20 w-20 text-primary mx-auto animate-pulse-glow" />
@@ -229,11 +229,11 @@ function FeatureCard({ icon, title, description, color }: { icon: React.ReactNod
 function StepCard({ step, title, description, icon }: { step: string; title: string; description: string; icon: React.ReactNode }) {
   return (
     <Card className="glass-strong border-2 border-primary/30 p-8 relative overflow-hidden group hover:border-primary/50 transition-all">
-      <div className="absolute top-0 right-0 text-9xl font-black text-primary/5 font-heading">
+      {/* <div className="absolute top-0 right-0 text-9xl font-black text-primary/5 font-heading">
         {step}
-      </div>
+      </div> */}
       <div className="relative z-10 flex gap-6">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="w-16 h-16 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
             {icon}
           </div>
@@ -250,7 +250,7 @@ function StepCard({ step, title, description, icon }: { step: string; title: str
 function TierCard({ rank, range, color }: { rank: string; range: string; color: string }) {
   return (
     <Card className={`glass-strong border-2 border-primary/30 p-6 text-center group hover:scale-105 transition-transform`}>
-      <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${color} mx-auto mb-4 flex items-center justify-center text-3xl font-black text-white shadow-lg`}>
+      <div className={`w-20 h-20 rounded-full bg-linear-to-br ${color} mx-auto mb-4 flex items-center justify-center text-3xl font-black text-white shadow-lg`}>
         {rank[0]}
       </div>
       <h3 className="text-2xl font-bold mb-2">{rank}</h3>

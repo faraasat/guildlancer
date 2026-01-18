@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import FloatingParticles from '@/components/FloatingParticles';
 import {
   Shield,
   Award,
@@ -45,8 +44,8 @@ interface DashboardClientProps {
 const mockActiveMissions = [
   {
     id: 1,
-    title: 'Smart Contract Security Audit',
-    client: 'CryptoDAO',
+    title: 'Missing Person Investigation',
+    client: 'FamilyAdvocate',
     reward: 15000,
     deadline: '2 days',
     progress: 65,
@@ -54,8 +53,8 @@ const mockActiveMissions = [
   },
   {
     id: 2,
-    title: 'Mobile App UI Redesign',
-    client: 'TechCorp',
+    title: 'Background Verification Check',
+    client: 'LawFirm Partners',
     reward: 8500,
     deadline: '5 days',
     progress: 30,
@@ -66,7 +65,7 @@ const mockActiveMissions = [
 const mockPostedBounties = [
   {
     id: 1,
-    title: 'Backend API Development',
+    title: 'Lost Property Recovery',
     applications: 5,
     reward: 12000,
     status: 'reviewing',
@@ -74,7 +73,7 @@ const mockPostedBounties = [
   },
   {
     id: 2,
-    title: 'Database Migration',
+    title: 'Document Research & Analysis',
     applications: 2,
     reward: 6000,
     status: 'active',
@@ -86,30 +85,13 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   const [mode, setMode] = useState<'hunter' | 'client'>('hunter');
   return (
     <div className="relative min-h-screen pt-24 pb-16 overflow-hidden">
-      {/* Floating Particles Background */}
-      <FloatingParticles />
-      
-      {/* Animated Background Grid */}
-      <div className="absolute inset-0 bg-circuit opacity-10 animate-grid-move" />
-      
-      {/* Radial Gradients */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px] animate-pulse-glow" />
-        <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-accent/6 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
-      </div>
-      
-      {/* HUD Corner Brackets */}
-      <div className="fixed top-20 left-4 w-20 h-20 border-l-2 border-t-2 border-primary/30 pointer-events-none animate-fade-in" />
-      <div className="fixed top-20 right-4 w-20 h-20 border-r-2 border-t-2 border-primary/30 pointer-events-none animate-fade-in" />
-      <div className="fixed bottom-4 left-4 w-20 h-20 border-l-2 border-b-2 border-primary/30 pointer-events-none animate-fade-in" />
-      <div className="fixed bottom-4 right-4 w-20 h-20 border-r-2 border-b-2 border-primary/30 pointer-events-none animate-fade-in" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-7xl mx-auto">
           {/* Header with Mode Toggle */}
           <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6 animate-slide-in-up">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass border-2 border-primary/40 text-sm font-bold tracking-wider mb-2 animate-shimmer-slide">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass border-2 border-primary/40 text-sm font-bold tracking-wider mb-2">
                 <Radar className="h-5 w-5 text-primary animate-radar-sweep" />
                 <span className="text-primary">COMMAND CENTER</span>
               </div>
@@ -188,7 +170,6 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                   {/* Active Missions */}
                   <Card className="relative nft-card glass-strong border-2 border-primary/40 p-8 hud-border overflow-hidden">
                     {/* Scan Line Effect */}
-                    <div className="scan-line" />
                     
                     <div className="flex items-center justify-between mb-8">
                       <h2 className="text-3xl font-black flex items-center gap-3">
@@ -386,7 +367,6 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               {/* Profile Summary */}
               <Card className="nft-card glass-strong border-2 border-primary/40 p-6 hud-border overflow-hidden">
                 {/* Scan Line */}
-                <div className="scan-line" />
                 
                 <h3 className="text-lg font-black mb-4 flex items-center gap-2 text-neon-primary tracking-wider">
                   <Shield className="h-5 w-5" />
@@ -395,7 +375,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 
                 <div className="text-center mb-6">
                   <div className="relative inline-block mb-4">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center border-2 border-primary/50 glow-primary">
+                    <div className="w-24 h-24 rounded-full bg-linear-to-br from-primary/40 to-secondary/40 flex items-center justify-center border-2 border-primary/50 glow-primary">
                       <span className="text-4xl font-black text-neon-primary">{user.username[0].toUpperCase()}</span>
                     </div>
                     <div className="absolute -inset-2 border-2 border-primary/30 rounded-full animate-pulse-glow" />
@@ -412,7 +392,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                     <span className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Trust Score</span>
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-20 bg-primary/20 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-primary to-success rounded-full animate-shimmer" style={{ width: `${user.trustScore}%` }} />
+                        <div className="h-full bg-linear-to-r from-primary to-success rounded-full" style={{ width: `${user.trustScore}%` }} />
                       </div>
                       <span className="font-black text-neon-primary">{user.trustScore}%</span>
                     </div>
@@ -438,7 +418,6 @@ export default function DashboardClient({ user }: DashboardClientProps) {
               {/* Notifications */}
               <Card className="nft-card glass-strong border-2 border-warning/40 p-6 hud-border overflow-hidden">
                 {/* Scan Line */}
-                <div className="scan-line" />
                 
                 <h3 className="text-lg font-black mb-4 flex items-center gap-2 tracking-wider">
                   <div className="p-1.5 rounded-lg bg-warning/20 border-2 border-warning/40 animate-pulse-glow">
@@ -498,7 +477,6 @@ function MissionCard({ mission }: { mission: any }) {
   return (
     <div className="nft-card glass-strong p-6 rounded-lg border-2 border-primary/30 hover:border-primary/60 transition-cyber group hud-border overflow-hidden">
       {/* Scan Line */}
-      <div className="scan-line" />
       
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -528,7 +506,7 @@ function MissionCard({ mission }: { mission: any }) {
         </div>
         <div className="h-3 bg-background/50 rounded-full overflow-hidden border border-primary/30">
           <div
-            className="h-full bg-gradient-to-r from-primary via-accent to-secondary animate-shimmer-slide"
+            className="h-full bg-linear-to-r from-primary via-accent to-secondary"
             style={{ width: `${mission.progress}%` }}
           />
         </div>
@@ -617,7 +595,6 @@ function StatCard({ icon, label, value, change, trend, color }: {
   return (
     <Card className={`nft-card glass-strong border-2 ${classes.border} p-6 hover:border-${color}/60 transition-cyber hud-border group overflow-hidden animate-slide-in-up`}>
       {/* Scan Line */}
-      <div className="scan-line" />
       
       <div className={`inline-flex p-3 rounded-lg ${classes.bg} border-2 ${classes.border} ${classes.glow} mb-4 group-hover:scale-110 transition-cyber`}>
         {icon}
@@ -654,7 +631,7 @@ function GuidanceStep({ number, title, description, completed, href }: {
   return (
     <Link href={href}>
       <div className="flex gap-4 p-4 glass rounded-lg hover:border-accent/30 border border-transparent transition-all group">
-        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+        <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${
           completed ? 'bg-success/20 text-success' : 'bg-accent/20 text-accent'
         }`}>
           {completed ? '✓' : number}

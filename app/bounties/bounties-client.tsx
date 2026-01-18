@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import FloatingParticles from '@/components/FloatingParticles';
 import Link from 'next/link';
 import {
   Target,
@@ -25,18 +24,17 @@ interface BountiesClientProps {
     username: string;
   };
 }
-
-// Mock bounties data
+// Mock bounties data - Diverse real-world bounty types
 const mockBounties = [
   {
     id: 'BNT001',
-    title: 'Security Audit - DeFi Protocol',
-    description: 'Comprehensive security audit of smart contracts for a DeFi lending protocol. Looking for experienced security researchers.',
-    category: 'Security',
+    title: 'Missing Person Investigation - Chicago Area',
+    description: 'Locate missing individual last seen near downtown Chicago. Requires experienced investigator with local knowledge and skip-tracing skills.',
+    category: 'Missing Persons',
     reward: 5000,
     urgency: 'high',
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'cryptodev',
+    client: 'familyadvocate',
     clientRating: 4.8,
     requiredRank: 'Elite',
     applications: 12,
@@ -44,13 +42,13 @@ const mockBounties = [
   },
   {
     id: 'BNT002',
-    title: 'Full-Stack E-Commerce Platform',
-    description: 'Build a modern e-commerce platform with React, Node.js, and MongoDB. Payment integration required.',
-    category: 'Full-Stack',
-    reward: 8000,
+    title: 'Corporate Background Verification',
+    description: 'Conduct thorough background check on potential business partner. Verify credentials, business history, and financial standing.',
+    category: 'Verification',
+    reward: 3000,
     urgency: 'medium',
     deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'startupfounder',
+    client: 'bizowner',
     clientRating: 4.5,
     requiredRank: 'Veteran',
     applications: 8,
@@ -58,21 +56,49 @@ const mockBounties = [
   },
   {
     id: 'BNT003',
-    title: 'Mobile App UI/UX Design',
-    description: 'Design modern and intuitive user interface for a fitness tracking mobile application.',
-    category: 'Design',
-    reward: 2500,
-    urgency: 'low',
+    title: 'Lost Jewelry Recovery - Manhattan',
+    description: 'Family heirloom lost in Manhattan area. Diamond ring with engraving. Check pawn shops, lost & found, local businesses.',
+    category: 'Lost & Found',
+    reward: 1500,
+    urgency: 'medium',
     deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-    client: 'healthtech',
+    client: 'desperate_owner',
     clientRating: 4.9,
     requiredRank: 'Rookie',
     applications: 15,
     status: 'open',
   },
+  {
+    id: 'BNT004',
+    title: 'Digital Forensic Analysis',
+    description: 'Recover deleted files and analyze digital evidence from compromised device. Cyber crime investigation support.',
+    category: 'Forensics',
+    reward: 4500,
+    urgency: 'high',
+    deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    client: 'lawfirm_partner',
+    clientRating: 5.0,
+    requiredRank: 'Elite',
+    applications: 6,
+    status: 'open',
+  },
+  {
+    id: 'BNT005',
+    title: 'Local Assistance - Document Delivery',
+    description: 'Urgent document delivery and notarization in Los Angeles. Must be available today and have reliable transportation.',
+    category: 'Local Tasks',
+    reward: 200,
+    urgency: 'high',
+    deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    client: 'attorney_office',
+    clientRating: 4.7,
+    requiredRank: 'Rookie',
+    applications: 23,
+    status: 'open',
+  },
 ];
 
-const categories = ['All', 'Security', 'Full-Stack', 'Frontend', 'Backend', 'Mobile', 'Design'];
+const categories = ['All', 'Missing Persons', 'Lost & Found', 'Verification', 'Forensics', 'Local Tasks', 'Research'];
 const urgencyLevels = ['All', 'High', 'Medium', 'Low'];
 const rankRequirements = ['All', 'Rookie', 'Veteran', 'Elite', 'Master', 'Legendary'];
 
@@ -82,16 +108,11 @@ export default function BountiesClient({ user }: BountiesClientProps) {
   const [selectedUrgency, setSelectedUrgency] = useState('All');
   const [selectedRank, setSelectedRank] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
-
   // If user is not authenticated, show public view
   if (!user) {
     return (
       <div className="min-h-screen pt-24 pb-16 relative">
         {/* Background Effects */}
-        <FloatingParticles />
-        <div className="absolute inset-0 bg-circuit opacity-5 animate-grid-move" />
-        <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-accent/6 rounded-full blur-[150px] animate-pulse-glow" />
-        <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="inline-block px-4 py-2 rounded-full glass-strong border border-accent/40 text-sm font-bold tracking-wide mb-4 animate-glow-pulse military-corners">
@@ -148,10 +169,6 @@ export default function BountiesClient({ user }: BountiesClientProps) {
   return (
     <div className="min-h-screen pt-24 pb-16 relative">
       {/* Background Effects */}
-      <FloatingParticles />
-      <div className="absolute inset-0 bg-circuit opacity-5 animate-grid-move" />
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-accent/6 rounded-full blur-[150px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-7xl mx-auto">
@@ -306,13 +323,13 @@ function BountyCard({ bounty }: BountyCardProps) {
   const getRankColor = () => {
     switch (bounty.requiredRank) {
       case 'Legendary':
-        return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+        return 'bg-accent/20 text-accent border-accent/30';
       case 'Master':
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+        return 'bg-warning/20 text-warning border-warning/30';
       case 'Elite':
-        return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
+        return 'bg-primary/20 text-primary border-primary/30';
       case 'Veteran':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
+        return 'bg-success/20 text-success border-success/30';
       default:
         return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     }
@@ -325,7 +342,7 @@ function BountyCard({ bounty }: BountyCardProps) {
   return (
     <Card className="relative group glass-strong border-2 border-primary/30 hover:border-primary/60 transition-all duration-500 hover:-translate-y-1 p-6 military-corners tactical-scan overflow-hidden">
       {/* Card Shimmer Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative z-10">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">

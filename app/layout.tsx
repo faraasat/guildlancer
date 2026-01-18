@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GuildLancer - Decentralized Trust Platform",
+  title: "GuildLancer - Guildified Trust Platform",
   description: "A guild-based, trust-driven bounty resolution platform powered by community governance and AI-assisted decision making.",
   keywords: ["guilds", "bounties", "trust", "community", "governance", "web3"],
 };

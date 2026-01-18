@@ -57,17 +57,17 @@ const trustScoreData = [
 ];
 
 const categorySuccessData = [
-  { category: 'Security', successRate: 0, missions: 0 },
-  { category: 'Frontend', successRate: 0, missions: 0 },
-  { category: 'Backend', successRate: 0, missions: 0 },
-  { category: 'Mobile', successRate: 0, missions: 0 },
-  { category: 'Design', successRate: 0, missions: 0 },
+  { category: 'Investigation', successRate: 0, missions: 0 },
+  { category: 'Verification', successRate: 0, missions: 0 },
+  { category: 'Lost & Found', successRate: 0, missions: 0 },
+  { category: 'Forensics', successRate: 0, missions: 0 },
+  { category: 'Local Tasks', successRate: 0, missions: 0 },
 ];
 
 const earningsData = [
-  { name: 'Mission Rewards', value: 0, color: '#00e6ff' },
-  { name: 'Bonuses', value: 1000, color: '#ff00e5' },
-  { name: 'Staking Returns', value: 0, color: '#8b00ff' },
+  { name: 'Mission Rewards', value: 0, color: '#3B82F6' },
+  { name: 'Bonuses', value: 1000, color: '#22C55E' },
+  { name: 'Staking Returns', value: 0, color: '#F97316' },
 ];
 
 const skillRadarData = [
@@ -85,7 +85,7 @@ const completionTimeData = [
   { range: '> 7 days', count: 0 },
 ];
 
-const COLORS = ['#00e6ff', '#ff00e5', '#8b00ff', '#00ff94', '#ffaa00'];
+const COLORS = ['#3B82F6', '#22C55E', '#F97316', '#A855F7', '#3B82F6'];
 
 export default function AnalyticsClient({ user }: AnalyticsClientProps) {
   const [mode, setMode] = useState<'hunter' | 'client'>('hunter');
@@ -182,7 +182,7 @@ function HunterAnalytics({ user }: { user: any }) {
             <Tooltip
               contentStyle={{
                 backgroundColor: '#1a1a24',
-                border: '1px solid #00e6ff40',
+                border: '1px solid #3B82F640',
                 borderRadius: '8px',
               }}
             />
@@ -190,9 +190,9 @@ function HunterAnalytics({ user }: { user: any }) {
             <Line
               type="monotone"
               dataKey="score"
-              stroke="#00e6ff"
+              stroke="#3B82F6"
               strokeWidth={3}
-              dot={{ fill: '#00e6ff', r: 6 }}
+              dot={{ fill: '#3B82F6', r: 6 }}
               activeDot={{ r: 8 }}
             />
           </LineChart>
@@ -214,11 +214,11 @@ function HunterAnalytics({ user }: { user: any }) {
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#1a1a24',
-                  border: '1px solid #ff00e540',
+                  border: '1px solid #A855F740',
                   borderRadius: '8px',
                 }}
               />
-              <Bar dataKey="successRate" fill="#ff00e5" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="successRate" fill="#A855F7" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <p className="text-center text-sm text-muted-foreground mt-4">
@@ -251,7 +251,7 @@ function HunterAnalytics({ user }: { user: any }) {
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#1a1a24',
-                  border: '1px solid #8b00ff40',
+                  border: '1px solid #A855F740',
                   borderRadius: '8px',
                 }}
               />
@@ -273,14 +273,14 @@ function HunterAnalytics({ user }: { user: any }) {
               <Radar
                 name="Your Performance"
                 dataKey="value"
-                stroke="#00ff94"
-                fill="#00ff94"
+                stroke="#22C55E"
+                fill="#22C55E"
                 fillOpacity={0.3}
               />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#1a1a24',
-                  border: '1px solid #00ff9440',
+                  border: '1px solid #22C55E40',
                   borderRadius: '8px',
                 }}
               />
@@ -302,11 +302,11 @@ function HunterAnalytics({ user }: { user: any }) {
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#1a1a24',
-                  border: '1px solid #ffaa0040',
+                  border: '1px solid #F9731640',
                   borderRadius: '8px',
                 }}
               />
-              <Bar dataKey="count" fill="#ffaa00" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="count" fill="#F97316" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <p className="text-center text-sm text-muted-foreground mt-4">

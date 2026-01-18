@@ -34,10 +34,10 @@ export default function FloatingParticles() {
     const particles: Particle[] = [];
     const particleCount = 80;
     const colors = [
-      'rgba(0, 255, 255', // cyan
-      'rgba(130, 50, 255', // violet
-      'rgba(255, 0, 127', // magenta
-      'rgba(0, 255, 100', // green
+      'rgba(59, 130, 246', // blue
+      'rgba(34, 197, 94', // green
+      'rgba(249, 115, 22', // orange
+      'rgba(168, 85, 247', // purple
     ];
 
     for (let i = 0; i < particleCount; i++) {

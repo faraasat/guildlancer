@@ -77,7 +77,7 @@ const mockMessages = [
     senderId: 'me',
     senderName: 'You',
     senderAvatar: '👤',
-    message: 'Yes! I have 5 years of experience in smart contract security.',
+    message: 'Yes! I have 5 years of experience in investigation and asset recovery.',
     timestamp: new Date(Date.now() - 3500000).toISOString(),
     read: true,
   },

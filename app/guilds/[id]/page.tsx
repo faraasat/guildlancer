@@ -35,10 +35,10 @@ const mockGuild = {
     { id: 5, name: 'CodeViper', avatar: '🐍', role: 'Senior Hunter', trustScore: 96.8, quests: 27 },
   ],
   recentActivity: [
-    { type: 'quest_completed', quest: 'Smart Contract Audit', reward: 15000, time: '2 hours ago' },
+    { type: 'quest_completed', quest: 'Missing Person Case', reward: 15000, time: '2 hours ago' },
     { type: 'member_joined', member: 'QuantumHawk', time: '1 day ago' },
-    { type: 'quest_accepted', quest: 'API Security Review', stake: 8000, time: '2 days ago' },
-    { type: 'dispute_won', quest: 'Infrastructure Setup', time: '3 days ago' },
+    { type: 'quest_accepted', quest: 'Background Verification', stake: 8000, time: '2 days ago' },
+    { type: 'dispute_won', quest: 'Asset Recovery', time: '3 days ago' },
   ],
   stats: {
     trustEvolution: [95, 96, 96.5, 97, 97.8, 98, 98.5],
@@ -226,7 +226,7 @@ export default function GuildDetailPage() {
                   {guild.stats.trustEvolution.map((score, idx) => (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                       <div 
-                        className="w-full bg-gradient-to-t from-primary to-secondary rounded-t-lg relative group"
+                        className="w-full bg-linear-to-t from-primary to-secondary rounded-t-lg relative group"
                         style={{ height: `${(score / 100) * 100}%` }}
                       >
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-card px-2 py-1 rounded text-xs font-bold whitespace-nowrap">
@@ -248,7 +248,7 @@ export default function GuildDetailPage() {
                   {guild.stats.questsPerMonth.map((quests, idx) => (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-2">
                       <div 
-                        className="w-full bg-gradient-to-t from-secondary to-accent rounded-t-lg relative group"
+                        className="w-full bg-linear-to-t from-secondary to-accent rounded-t-lg relative group"
                         style={{ height: `${(quests / 20) * 100}%` }}
                       >
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-card px-2 py-1 rounded text-xs font-bold">

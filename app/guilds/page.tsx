@@ -6,87 +6,86 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import FloatingParticles from '@/components/FloatingParticles';
 import { useState } from 'react';
 
-// Mock data for guilds
+// Mock data for guilds - Diverse real-world bounty hunting categories
 const mockGuilds = [
   {
     id: 1,
-    name: 'Cyber Syndicate',
-    tagline: 'Elite coders & security experts',
-    avatar: '🛡️',
+    name: 'Apex Trackers',
+    tagline: 'Elite missing persons & asset recovery',
+    avatar: '🔍',
     members: 47,
     activeQuests: 12,
     trustScore: 98.5,
     powerLevel: 2847,
     rank: 'Platinum',
-    specialization: 'Security & Infrastructure',
+    specialization: 'Lost & Found / Missing Persons',
     color: 'primary'
   },
   {
     id: 2,
-    name: 'Neon Knights',
-    tagline: 'Full-stack warriors',
-    avatar: '⚔️',
+    name: 'Digital Forensics Unit',
+    tagline: 'Cyber crime investigation specialists',
+    avatar: '🕵️',
     members: 52,
     activeQuests: 18,
     trustScore: 96.2,
     powerLevel: 2654,
     rank: 'Platinum',
-    specialization: 'Web Development',
+    specialization: 'Forensic Analysis & Cyber Crime',
     color: 'secondary'
   },
   {
     id: 3,
-    name: 'Data Dragons',
-    tagline: 'AI/ML specialists',
-    avatar: '🐉',
+    name: 'Truth Seekers',
+    tagline: 'Fact verification & investigation',
+    avatar: '⚖️',
     members: 38,
     activeQuests: 9,
     trustScore: 97.8,
     powerLevel: 2512,
     rank: 'Gold',
-    specialization: 'AI & Machine Learning',
+    specialization: 'Verification & Background Checks',
     color: 'accent'
   },
   {
     id: 4,
-    name: 'Quantum Collective',
-    tagline: 'Blockchain & DeFi experts',
-    avatar: '⚡',
+    name: 'Shadow Stalkers',
+    tagline: 'Fugitive recovery & surveillance',
+    avatar: '👁️',
     members: 41,
     activeQuests: 14,
     trustScore: 95.4,
     powerLevel: 2389,
     rank: 'Gold',
-    specialization: 'Blockchain Development',
+    specialization: 'Criminal Bounty Hunting',
     color: 'success'
   },
   {
     id: 5,
-    name: 'Shadow Protocol',
-    tagline: 'Stealth operations team',
-    avatar: '👤',
+    name: 'Local Heroes',
+    tagline: 'Community assistance & local tasks',
+    avatar: '🦸',
     members: 29,
     activeQuests: 7,
     trustScore: 94.1,
     powerLevel: 2156,
     rank: 'Gold',
-    specialization: 'Penetration Testing',
+    specialization: 'Local Assistance & Errands',
     color: 'primary'
   },
   {
     id: 6,
-    name: 'Phoenix Rising',
-    tagline: 'Mobile app specialists',
-    avatar: '🔥',
+    name: 'InfoHawks',
+    tagline: 'Intelligence gathering & research',
+    avatar: '🦅',
     members: 44,
     activeQuests: 11,
     trustScore: 93.7,
     powerLevel: 2098,
     rank: 'Silver',
-    specialization: 'Mobile Development',
+    specialization: 'Information Gathering & OSINT',
     color: 'warning'
   }
 ];
@@ -105,28 +104,18 @@ export default function GuildsPage() {
   return (
     <div className="relative min-h-screen pt-24 pb-16 overflow-hidden">
       {/* Floating Particles Background */}
-      <FloatingParticles />
-      
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-circuit opacity-10 animate-grid-move" />
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-accent/8 rounded-full blur-[150px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-primary/6 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Header - Anime Style */}
         <div className="mb-16 text-center space-y-8 animate-slide-in-up">
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-strong border-2 border-accent/40 text-sm font-black tracking-wider mb-4 animate-shimmer-slide hud-border">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass-strong border-2 border-accent/40 text-sm font-black tracking-wider mb-4 hud-border text-foreground">
             <Crown className="h-5 w-5 text-accent animate-pulse-glow" />
             <span className="text-accent">GUILD REGISTRY</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black font-heading leading-tight">
-            <span className="text-neon-secondary animate-neon-flicker">ELITE</span>{' '}
-            <span className="text-gradient-accent">GUILDS</span>
-          </h1>
           <div className="flex items-center justify-center gap-4">
-            <div className="h-[2px] w-32 bg-gradient-to-r from-transparent via-accent to-accent animate-shimmer" />
-            <Swords className="text-accent h-8 w-8 animate-pulse-glow" />
-            <div className="h-[2px] w-32 bg-gradient-to-r from-accent via-accent to-transparent animate-shimmer" style={{ animationDelay: '0.5s' }} />
+            <div className="h-0.5 w-32 bg-linear-to-r from-transparent via-accent to-accent" />
+            <Swords className="text-accent h-8 w-8" />
+            <div className="h-0.5 w-32 bg-linear-to-r from-accent via-accent to-transparent" />
           </div>
           <p className="text-2xl text-foreground/90 max-w-3xl mx-auto leading-relaxed font-light">
             Join forces with <span className="text-gradient-primary font-bold">legendary warriors</span>. Higher trust unlocks <span className="text-gradient-success font-bold">epic missions</span>.
@@ -136,9 +125,6 @@ export default function GuildsPage() {
         {/* Search & Filters - Anime Enhanced */}
         <div className="mb-16 max-w-5xl mx-auto">
           <Card className="nft-card glass-strong p-8 border-2 border-accent/40 hud-border overflow-hidden">
-            {/* Scan Line */}
-            <div className="scan-line" />
-            
             <div className="flex flex-col md:flex-row gap-6">
               {/* Search - Anime Style */}
               <div className="flex-1 relative">
@@ -197,12 +183,6 @@ export default function GuildsPage() {
         {/* CTA Section - Epic Anime Style */}
         <div className="mt-20">
           <Card className="relative overflow-hidden nft-card border-2 border-accent/40 p-16 md:p-20 hud-border">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-secondary/20 to-primary/30" />
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-circuit opacity-10 animate-shimmer-diagonal" />
-            
-            {/* Scan Line Effect */}
-            <div className="scan-line" />
-            
             <div className="relative z-10 text-center space-y-10">
               <div className="relative inline-block">
                 <Flame className="h-24 w-24 text-accent mx-auto animate-pulse-glow" />
@@ -278,7 +258,7 @@ function GuildCard({ guild }: { guild: Guild }) {
     <Link href={`/guilds/${guild.id}`}>
       <Card className={`relative group overflow-hidden glass-strong border-2 border-primary/20 hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 tactical-scan military-corners`}>
         {/* Gradient Background */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${getRankColor(guild.rank)} opacity-50 group-hover:opacity-70 transition-opacity`} />
+        <div className={`absolute inset-0 bg-linear-to-br ${getRankColor(guild.rank)} opacity-50 group-hover:opacity-70 transition-opacity`} />
         
         {/* Content */}
         <div className="relative p-6 space-y-4">

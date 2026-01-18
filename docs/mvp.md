@@ -321,7 +321,7 @@ Clients can post tasks with:
 
 - **Hero Section:**
   - Animated sci-fi typography with glitch effects
-  - Tagline: "Decentralized Trust. Community Governance. Boundless Opportunities."
+  - Tagline: "Guildified Trust. Community Governance. Boundless Opportunities."
   - Particle background animation
 - **Live Network Stats Ticker:**
   - Total active bounties (real-time counter)

@@ -117,15 +117,10 @@ const UserSchema = new Schema<IUser>(
       type: Date,
       default: Date.now,
     },
-  },
-  {
-    timestamps: true,
   }
 );
 
-// Indexes for performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ username: 1 });
+// Indexes for performance (email and username already indexed via unique: true)
 UserSchema.index({ trustScore: -1 });
 UserSchema.index({ guildId: 1 });
 

@@ -32,7 +32,7 @@ All demo accounts use password: **demo123**
 **URL**: `http://localhost:3000`
 
 **Talking Points**:
-- "Nexora is a decentralized freelance marketplace built on trust and reputation"
+- "Nexora is a Guildified freelance marketplace built on trust and reputation"
 - Point out the hero section highlighting key benefits
 - Scroll to features section
 - Show statistics at bottom (if implemented)
@@ -318,7 +318,7 @@ A: Our Oracle AI monitors for anomalies like circular transactions, coordinated 
 A: You can escalate to Tier 3 where a community tribunal of experienced users votes on resolution.
 
 **Q: How are guilds different from agencies?**  
-A: Guilds are decentralized teams with shared reputation. Success benefits all members, incentivizing collaboration.
+A: Guilds are Guildified teams with shared reputation. Success benefits all members, incentivizing collaboration.
 
 **Q: How much does it cost?**  
 A: Platform takes 10% fee on completed bounties. Posting bounties and browsing are free.

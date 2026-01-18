@@ -19,16 +19,15 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-primary/20 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 border-b border-border/60 backdrop-blur-md shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <Sparkles className="h-8 w-8 text-primary relative z-10" />
-              <div className="absolute inset-0 blur-xl bg-primary/50 animate-pulse-glow" />
+              <Sparkles className="h-8 w-8 text-primary" />
             </div>
-            <span className="text-2xl font-black text-gradient-primary font-heading">
+            <span className="text-2xl font-black text-foreground font-heading">
               GuildLancer
             </span>
           </Link>
@@ -42,7 +41,7 @@ export function Navbar() {
                 className="text-foreground/80 hover:text-primary transition-colors text-sm font-medium relative group"
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-primary to-secondary group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
           </div>
@@ -56,7 +55,7 @@ export function Navbar() {
                     <div className="text-2xl">{session.user.avatar || '👤'}</div>
                     <span className="max-w-25 truncate">{session.user.username}</span>
                   </Button>
-                  <div className="absolute right-0 top-full mt-2 w-56 glass-strong border-2 border-primary/30 rounded-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-card/95 border border-border/60 rounded-lg p-2 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
@@ -99,7 +98,7 @@ export function Navbar() {
                       <MessageSquare className="h-4 w-4" />
                       Messages
                     </Link>
-                    <div className="my-1 border-t border-primary/20" />
+                    <div className="my-1 border-t border-border/60" />
                     <Link
                       href="/profile"
                       className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-primary/10 rounded transition-colors"
@@ -114,10 +113,10 @@ export function Navbar() {
                       <Settings className="h-4 w-4" />
                       Settings
                     </Link>
-                    <div className="my-1 border-t border-primary/20" />
+                    <div className="my-1 border-t border-border/60" />
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
-                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-destructive/10 rounded transition-colors w-full text-left text-destructive"
+                      className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-warning/10 rounded transition-colors w-full text-left text-warning"
                     >
                       <LogOut className="h-4 w-4" />
                       Sign Out
@@ -127,10 +126,10 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <Button variant="ghost" asChild className="border border-primary/20 hover:border-primary/40">
+                <Button variant="ghost" asChild className="border border-border/60 hover:border-primary/60">
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild className="glow-primary border border-primary/50">
+                <Button asChild className="border border-primary/50 bg-primary text-primary-foreground hover:bg-primary/90">
                   <Link href="/register" className="flex items-center gap-2">
                     <Zap className="h-4 w-4" />
                     Enter Network
