@@ -231,7 +231,7 @@ function ActivityCard({ activity, isExpanded, onToggle }: any) {
                 {activity.impact.credits !== undefined && activity.impact.credits !== 0 && (
                   <div className="glass px-3 py-1 rounded-full text-sm">
                     Credits: <span className="font-bold text-warning">
-                      {activity.impact.credits > 0 ? '+' : ''}{activity.impact.credits.toLocaleString()}
+                      {activity.impact.credits > 0 ? '+' : ''}{activity.impact.credits?.toLocaleString()}
                     </span>
                   </div>
                 )}

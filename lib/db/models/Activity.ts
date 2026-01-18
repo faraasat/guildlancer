@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IActivity extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'BountyPosted' | 'BountyAccepted' | 'BountyCompleted' | 'DisputeRaised' | 'DisputeResolved' | 'GuildJoined' | 'GuildLeft' | 'TribunalVote' | 'RankUp' | 'RankDown' | 'AccountCreated';
+  type: 'BountyPosted' | 'BountyAccepted' | 'BountyCompleted' | 'DisputeRaised' | 'DisputeResolved' | 'GuildJoined' | 'GuildLeft' | 'TribunalVote' | 'RankUp' | 'RankDown' | 'AccountCreated' | 'AchievementUnlocked';
   relatedBountyId?: mongoose.Types.ObjectId;
   relatedGuildId?: mongoose.Types.ObjectId;
   relatedDisputeId?: mongoose.Types.ObjectId;
@@ -20,7 +20,7 @@ const ActivitySchema = new Schema<IActivity>({
   },
   type: {
     type: String,
-    enum: ['BountyPosted', 'BountyAccepted', 'BountyCompleted', 'DisputeRaised', 'DisputeResolved', 'GuildJoined', 'GuildLeft', 'TribunalVote', 'RankUp', 'RankDown', 'AccountCreated'],
+    enum: ['BountyPosted', 'BountyAccepted', 'BountyCompleted', 'DisputeRaised', 'DisputeResolved', 'GuildJoined', 'GuildLeft', 'TribunalVote', 'RankUp', 'RankDown', 'AccountCreated', 'AchievementUnlocked'],
     required: true,
   },
   relatedBountyId: {

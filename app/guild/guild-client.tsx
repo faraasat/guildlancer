@@ -360,7 +360,7 @@ export default function GuildClient({ user: _user }: GuildClientProps) {
                             <span className="font-bold text-primary">{member.trustScore}</span>
                           </td>
                           <td className="px-4 py-4 text-right">
-                            <span className="text-sm">{member.contribution.toLocaleString()}</span>
+                            <span className="text-sm">{member.contribution?.toLocaleString()}</span>
                           </td>
                           <td className="px-4 py-4 text-center">
                             <Badge className={

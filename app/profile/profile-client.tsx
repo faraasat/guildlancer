@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,37 +10,120 @@ import { Shield, TrendingUp, Award, Target, Settings, Zap, Star, Clock, Crown } 
 interface ProfileClientProps {
   user: {
     id: string;
-    email: string;
+    email?: string;
     username: string;
     avatar?: string;
-    rank: string;
-    trustScore: number;
+    rank?: string;
+    trustScore?: number;
   };
+  userId?: string; // Optional user ID to fetch profile data for
 }
 
-// Mock data for profile
-const mockStats = {
-  completedQuests: 0,
-  activeQuests: 0,
-  credits: 1000,
-  stakedCredits: 0,
-  successRate: 0,
-  avgResponseTime: 'N/A',
-  joinDate: new Date().toLocaleDateString(),
-};
+interface UserProfile {
+  _id: string;
+  username: string;
+  email: string;
+  rank: string;
+  trustScore: number;
+  completedQuests: number;
+  hunterReputation: number;
+  credits: number;
+  skills: string[];
+  bio?: string;
+  avatar?: string;
+  guildId?: any;
+  achievements?: {
+    achievementId: string;
+    name: string;
+    icon: string;
+    description: string;
+    earnedAt: string;
+  }[];
+  joinedAt: string;
+  lastActive: string;
+}
 
-const mockAchievements = [
-  { id: 1, name: 'First Steps', icon: '🎯', description: 'Joined GuildLancer', unlocked: true },
-  { id: 2, name: 'Quest Master', icon: '⚔️', description: 'Complete 10 quests', unlocked: false },
-  { id: 3, name: 'Trusted', icon: '🛡️', description: 'Reach 80% trust score', unlocked: false },
-  { id: 4, name: 'Elite Hunter', icon: '👑', description: 'Reach Elite rank', unlocked: false },
-];
+export default function ProfileClient({ user, userId }: ProfileClientProps) {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const mockActivity = [
-  { type: 'joined', text: 'Joined GuildLancer', time: 'Today', icon: '✨' },
-];
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setLoading(true);
+        const targetUserId = userId || user.id;
+        
+        const [profileRes, activitiesRes] = await Promise.all([
+          fetch(`/api/users/${targetUserId}`),
+          fetch(`/api/activities?userId=${targetUserId}&limit=5`)
+        ]);
 
-export default function ProfileClient({ user }: ProfileClientProps) {
+        if (!profileRes.ok) throw new Error('Failed to fetch profile');
+        
+        const profileData = await profileRes.json();
+        setProfile(profileData);
+
+        if (activitiesRes.ok) {
+          const activitiesData = await activitiesRes.json();
+          setActivities(activitiesData.activities || []);
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [userId, user.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <Card className="glass-strong border-2 border-destructive/30 p-8 max-w-md">
+          <p className="text-center text-destructive">{error || 'Profile not found'}</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const stats = {
+    completedQuests: profile.completedQuests || 0,
+    activeQuests: 0,
+    credits: profile.credits || 0,
+    hunterReputation: profile.hunterReputation || 0,
+    trustScore: profile.trustScore || 0,
+    joinDate: new Date(profile.joinedAt).toLocaleDateString(),
+    lastActive: new Date(profile.lastActive).toLocaleDateString(),
+  };
+
+  const achievements = profile.achievements || [];
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'BountyPosted': return '💰';
+      case 'BountyAccepted': return '⚔️';
+      case 'BountyCompleted': return '🏆';
+      case 'GuildJoined': return '🏯';
+      case 'AchievementUnlocked': return '🌟';
+      case 'RankUp': return '👑';
+      default: return '✨';
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -48,41 +132,43 @@ export default function ProfileClient({ user }: ProfileClientProps) {
           <Card className="glass-strong border-2 border-primary/30 p-8 mb-8 military-corners">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
-                <div className="text-7xl animate-float">{user.avatar || '👤'}</div>
+                <div className="text-7xl animate-float">{profile.avatar || '👤'}</div>
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-4xl font-black font-heading text-gradient-primary">
-                      {user.username}
+                      {profile.username}
                     </h1>
                     <Badge className={`text-primary border-primary/40 bg-primary/10 font-bold`}>
-                      {user.rank}
+                      {profile.rank}
                     </Badge>
                   </div>
                   <p className="text-muted-foreground mb-3">
-                    Member since {mockStats.joinDate}
+                    Member since {stats.joinDate}
                   </p>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-primary" />
                       <span className="text-sm">
-                        Trust Score: <span className="font-bold text-success">{user.trustScore}%</span>
+                        Trust Score: <span className="font-bold text-success">{profile.trustScore}%</span>
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Zap className="h-4 w-4 text-warning" />
                       <span className="text-sm">
-                        Credits: <span className="font-bold text-warning">{mockStats.credits.toLocaleString()}</span>
+                        Credits: <span className="font-bold text-warning">{stats.credits?.toLocaleString()}</span>
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
-              <Button asChild className="glow-primary">
-                <Link href="/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Edit Profile
-                </Link>
-              </Button>
+              {!userId && (
+                <Button asChild className="glow-primary">
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </Link>
+                </Button>
+              )}
             </div>
           </Card>
 
@@ -99,25 +185,25 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                   <StatCard
                     icon={<Target />}
                     label="Completed"
-                    value={mockStats.completedQuests.toString()}
+                    value={stats.completedQuests.toString()}
                     color="primary"
                   />
                   <StatCard
                     icon={<Zap />}
                     label="Active"
-                    value={mockStats.activeQuests.toString()}
+                    value={stats.activeQuests.toString()}
                     color="secondary"
                   />
                   <StatCard
                     icon={<Award />}
                     label="Success Rate"
-                    value={mockStats.successRate ? `${mockStats.successRate}%` : 'N/A'}
+                    value="N/A"
                     color="success"
                   />
                   <StatCard
                     icon={<Clock />}
                     label="Avg Response"
-                    value={mockStats.avgResponseTime}
+                    value="N/A"
                     color="accent"
                   />
                 </div>
@@ -130,7 +216,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                   Trust Score Breakdown
                 </h3>
                 <div className="space-y-4">
-                  <TrustMetric label="Quest Completion" value={user.trustScore} max={100} />
+                  <TrustMetric label="Quest Completion" value={profile.trustScore || 0} max={100} />
                   <TrustMetric label="Communication" value={50} max={100} />
                   <TrustMetric label="Quality" value={50} max={100} />
                   <TrustMetric label="Timeliness" value={50} max={100} />
@@ -141,14 +227,16 @@ export default function ProfileClient({ user }: ProfileClientProps) {
               <div>
                 <h2 className="text-2xl font-bold mb-4">Recent Activity</h2>
                 <Card className="glass-strong border-2 border-primary/30 p-6">
-                  {mockActivity.length > 0 ? (
+                  {activities.length > 0 ? (
                     <div className="space-y-4">
-                      {mockActivity.map((activity, idx) => (
+                      {activities.map((activity, idx) => (
                         <div key={idx} className="flex items-center gap-4">
-                          <div className="text-3xl">{activity.icon}</div>
+                          <div className="text-3xl">{getActivityIcon(activity.type)}</div>
                           <div>
-                            <div className="font-medium">{activity.text}</div>
-                            <div className="text-sm text-muted-foreground">{activity.time}</div>
+                            <div className="font-medium">{activity.description}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(activity.createdAt).toLocaleDateString()}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -171,22 +259,27 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                   Achievements
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
-                  {mockAchievements.map((achievement) => (
-                    <Card
-                      key={achievement.id}
-                      className={`glass-strong border-2 p-4 text-center transition-all ${
-                        achievement.unlocked
-                          ? 'border-warning/40 hover:border-warning/60'
-                          : 'border-muted/20 opacity-50'
-                      }`}
-                    >
-                      <div className="text-4xl mb-2">{achievement.icon}</div>
-                      <div className="text-sm font-bold mb-1">{achievement.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {achievement.description}
-                      </div>
-                    </Card>
-                  ))}
+                  {achievements.length > 0 ? (
+                    achievements.map((achievement) => (
+                      <Card
+                        key={achievement.achievementId}
+                        className="glass-strong border-2 p-4 text-center transition-all border-warning/40 hover:border-warning/60"
+                      >
+                        <div className="text-4xl mb-2">{achievement.icon}</div>
+                        <div className="text-sm font-bold mb-1">{achievement.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {achievement.description}
+                        </div>
+                        <div className="text-[10px] mt-2 text-muted-foreground opacity-60">
+                          Earned: {new Date(achievement.earnedAt).toLocaleDateString()}
+                        </div>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-8 text-muted-foreground glass-strong border-2 border-dashed border-muted/20 rounded-xl">
+                      No achievements yet. Keep growing to unlock them!
+                    </div>
+                  )}
                 </div>
               </div>
 

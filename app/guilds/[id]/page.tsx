@@ -171,7 +171,7 @@ export default function GuildDetailPage() {
           <StatCard icon={<Users />} label="Members" value={(1 + guild.officerIds.length + guild.memberIds.length).toString()} color="primary" />
           <StatCard icon={<Target />} label="Categories" value={guild.categories.length.toString()} color="secondary" />
           <StatCard icon={<Award />} label="Completed" value={guild.totalBountiesCompleted.toString()} color="accent" />
-          <StatCard icon={<Zap />} label="Treasury" value={`${guild.treasuryBalance.toLocaleString()} C`} color="success" />
+          <StatCard icon={<Zap />} label="Treasury" value={`${guild.treasuryBalance?.toLocaleString()} C`} color="success" />
         </div>
 
         {/* Tabs Section */}

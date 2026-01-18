@@ -420,3 +420,72 @@ export const DEMO_ACCOUNTS = [
     trustScore: 65,
   },
 ];
+
+/**
+ * Generate user achievements based on stats
+ */
+export function generateUserAchievements(rank: string, trustScore: number, completedQuests: number, credits: number) {
+  const achievements = [];
+  const baseDate = new Date();
+  
+  // Basic achievement for all users
+  achievements.push({
+    achievementId: 'first_steps',
+    name: 'First Steps',
+    icon: '🎯',
+    description: 'Joined the Nexora network',
+    earnedAt: new Date(baseDate.getTime() - 1000 * 60 * 60 * 24 * 30) // 30 days ago
+  });
+
+  if (completedQuests >= 5) {
+    achievements.push({
+      achievementId: 'quest_seeker',
+      name: 'Quest Seeker',
+      icon: '⚔️',
+      description: 'Completed 5 quests',
+      earnedAt: new Date(baseDate.getTime() - 1000 * 60 * 60 * 24 * 20)
+    });
+  }
+
+  if (completedQuests >= 50) {
+    achievements.push({
+      achievementId: 'quest_master',
+      name: 'Quest Master',
+      icon: '🏆',
+      description: 'Completed 50 quests',
+      earnedAt: new Date(baseDate.getTime() - 1000 * 60 * 60 * 24 * 10)
+    });
+  }
+
+  if (trustScore >= 90) {
+    achievements.push({
+      achievementId: 'trusted_hunter',
+      name: 'Trusted Hunter',
+      icon: '🛡️',
+      description: 'Reached 90% trust score',
+      earnedAt: new Date(baseDate.getTime() - 1000 * 60 * 60 * 24 * 15)
+    });
+  }
+
+  if (credits >= 10000) {
+    achievements.push({
+      achievementId: 'wealthy_hunter',
+      name: 'Wealthy Hunter',
+      icon: '💰',
+      description: 'Earned over 10,000 credits',
+      earnedAt: new Date(baseDate.getTime() - 1000 * 60 * 60 * 24 * 5)
+    });
+  }
+
+  if (['Elite', 'Master', 'Legendary'].includes(rank)) {
+    achievements.push({
+      achievementId: 'elite_rank',
+      name: 'Rank Elite',
+      icon: '👑',
+      description: 'Reached Elite status or higher',
+      earnedAt: new Date(baseDate.getTime() - 1000 * 60 * 60 * 24 * 25)
+    });
+  }
+
+  return achievements;
+}

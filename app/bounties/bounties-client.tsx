@@ -335,7 +335,7 @@ function BountyCard({ bounty }: BountyCardProps) {
         </div>
         <div className="text-right shrink-0 ml-4">
           <div className="text-3xl font-black font-heading text-neon-primary">
-            {bounty.reward.toLocaleString()}
+            {bounty.reward?.toLocaleString()}
           </div>
           <div className="text-xs text-accent font-bold tracking-wider">CREDITS</div>
         </div>

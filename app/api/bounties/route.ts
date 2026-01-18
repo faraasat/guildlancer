@@ -7,13 +7,19 @@ export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     
+    // Helper to capitalize first letter
+    const capitalize = (str: string | null) => {
+      if (!str) return undefined;
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+    
     const filters = {
       category: searchParams.get('category') || undefined,
       minReward: searchParams.get('minReward') ? Number(searchParams.get('minReward')) : undefined,
       maxReward: searchParams.get('maxReward') ? Number(searchParams.get('maxReward')) : undefined,
-      urgency: searchParams.get('urgency') as any || undefined,
-      minHunterRank: searchParams.get('minHunterRank') as any || undefined,
-      status: searchParams.get('status') as any || undefined,
+      urgency: capitalize(searchParams.get('urgency')) as any,
+      minHunterRank: capitalize(searchParams.get('minHunterRank')) as any,
+      status: capitalize(searchParams.get('status')) as any,
       search: searchParams.get('search') || undefined,
       sort: (searchParams.get('sort') as any) || 'newest',
       page: Number(searchParams.get('page') || '1'),

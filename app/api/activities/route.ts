@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     
     const filters = {
+      userId: searchParams.get('userId') || undefined,
       type: searchParams.get('type') || undefined,
       page: Number(searchParams.get('page') || '1'),
       limit: Number(searchParams.get('limit') || '50'),

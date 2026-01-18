@@ -514,7 +514,7 @@ function MissionCard({ mission }: { mission: any }) {
           </div>
         </div>
         <Badge className="bg-warning/30 text-warning border-2 border-warning/50 shrink-0 font-black px-4 py-2 text-sm animate-pulse-glow">
-          {mission.reward.toLocaleString()} CR
+          {mission.reward?.toLocaleString()} CR
         </Badge>
       </div>
       
@@ -575,7 +575,7 @@ function BountyCard({ bounty }: { bounty: any }) {
       <div className="flex items-center justify-between pt-4 border-t border-primary/20">
         <div className="text-sm">
           <span className="text-muted-foreground">Reward:</span>{' '}
-          <span className="font-bold text-warning">{bounty.reward.toLocaleString()} credits</span>
+          <span className="font-bold text-warning">{bounty.reward?.toLocaleString()} credits</span>
         </div>
         <Button variant="outline" className="border-primary/30" size="sm" asChild>
           <Link href={`/bounties/${bounty._id}`}>

@@ -19,6 +19,13 @@ export interface IUser {
   clientRating: number; // Average client rating (0-1)
   completedQuests: number;
   activeQuests: number;
+  achievements: {
+    achievementId: string;
+    name: string;
+    icon: string;
+    description: string;
+    earnedAt: Date;
+  }[];
   createdAt: Date;
   updatedAt: Date;
   lastActive: Date;
@@ -113,6 +120,18 @@ const UserSchema = new Schema<IUser>(
       default: 0,
       min: 0,
     },
+    achievements: [
+      {
+        achievementId: String,
+        name: String,
+        icon: String,
+        description: String,
+        earnedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     lastActive: {
       type: Date,
       default: Date.now,

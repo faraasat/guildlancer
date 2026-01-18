@@ -287,7 +287,7 @@ export default function PaymentsClient({ user }: PaymentsClientProps) {
                             <td className={`px-6 py-4 text-sm text-right font-bold ${
                               tx.type === 'credit' || tx.type === 'bounty_reward' ? 'text-success' : 'text-destructive'
                             }`}>
-                              {tx.type === 'credit' || tx.type === 'bounty_reward' ? '+' : '-'}{tx.amount.toLocaleString()}
+                              {tx.type === 'credit' || tx.type === 'bounty_reward' ? '+' : '-'}{tx.amount?.toLocaleString()}
                             </td>
                             <td className="px-6 py-4 text-sm text-right">
                               -
@@ -432,7 +432,7 @@ function BalanceCard({ title, amount, icon, color, trend, info }: any) {
         )}
       </div>
       <h3 className="text-sm text-muted-foreground mb-1">{title}</h3>
-      <p className="text-3xl font-black font-heading">{amount.toLocaleString()}</p>
+      <p className="text-3xl font-black font-heading">{amount?.toLocaleString()}</p>
       {info && <p className="text-xs text-muted-foreground mt-2">{info}</p>}
     </Card>
   );

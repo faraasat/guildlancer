@@ -233,7 +233,7 @@ function LiveStats() {
       
       <div className="relative group">
         <div className="relative nft-card glass-strong p-6 rounded-2xl border-2 border-secondary/40 group-hover:border-secondary/70 transition-cyber hud-border">
-          <div className="text-5xl font-black text-neon-secondary mb-2 animate-hologram-glitch">{stats.bounties.toLocaleString()}</div>
+          <div className="text-5xl font-black text-neon-secondary mb-2 animate-hologram-glitch">{stats.bounties?.toLocaleString()}</div>
           <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Total Bounties</div>
           <div className="absolute top-4 right-4">
             <div className="w-3 h-3 bg-secondary rounded-full" />
@@ -242,7 +242,7 @@ function LiveStats() {
         </div>
       <div className="relative group">
         <div className="relative nft-card glass-strong p-6 rounded-2xl border-2 border-accent/40 group-hover:border-accent/70 transition-cyber hud-border">
-          <div className="text-5xl font-black text-neon-accent mb-2 animate-hologram-glitch">{stats.hunters.toLocaleString()}</div>
+          <div className="text-5xl font-black text-neon-accent mb-2 animate-hologram-glitch">{stats.hunters?.toLocaleString()}</div>
           <div className="text-sm text-foreground/70 font-bold tracking-wider uppercase">Active Hunters</div>
           <div className="absolute top-4 right-4">
             <div className="w-3 h-3 bg-accent rounded-full" />

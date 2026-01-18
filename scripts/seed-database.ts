@@ -24,6 +24,7 @@ import {
   generateBountyDescription,
   generateGuildDescription,
   generateUserBio,
+  generateUserAchievements,
   generateMessage,
   generateActivity,
   hashPassword,
@@ -55,19 +56,50 @@ async function generateUsers(): Promise<any[]> {
 
   const users: any[] = [];
 
-  // Create demo accounts first
+  // Create demo accounts first with realistic stats
   for (const demoAccount of DEMO_ACCOUNTS) {
+    let completedQuests = 0;
+    let hunterReputation = 0;
+    let credits = 1000;
+
+    // Set realistic stats based on rank
+    switch (demoAccount.rank) {
+      case "Rookie":
+        completedQuests = randomInt(0, 3);
+        hunterReputation = randomInt(0, 50);
+        credits = randomInt(500, 1500);
+        break;
+      case "Veteran":
+        completedQuests = randomInt(10, 15);
+        hunterReputation = randomInt(200, 400);
+        credits = randomInt(2000, 5000);
+        break;
+      case "Elite":
+        completedQuests = randomInt(30, 40);
+        hunterReputation = randomInt(1000, 1800);
+        credits = randomInt(5000, 10000);
+        break;
+      case "Master":
+        completedQuests = randomInt(75, 90);
+        hunterReputation = randomInt(3500, 4500);
+        credits = randomInt(15000, 25000);
+        break;
+    }
+
     const user = await User.create({
       username: demoAccount.username,
       email: demoAccount.email,
       password: await hashPassword(demoAccount.password),
       rank: demoAccount.rank,
       trustScore: demoAccount.trustScore,
-      credits: randomInt(500, 5000),
+      completedQuests,
+      hunterReputation,
+      credits,
       skills: randomElements(SKILLS, randomInt(2, 5)),
       bio: generateUserBio(demoAccount.rank, randomElements(SKILLS, 2)),
       joinedAt: randomPastDate(180),
       lastActive: randomPastDate(7),
+      achievements: generateUserAchievements(demoAccount.rank, demoAccount.trustScore, completedQuests, credits),
     });
     users.push(user);
   }
@@ -77,23 +109,36 @@ async function generateUsers(): Promise<any[]> {
     const rank = weightedRandom(RANK_WEIGHTS);
     const skills = randomElements(SKILLS, randomInt(2, 6));
 
-    // Trust score based on rank (0-100 scale)
+    // Trust score and stats based on rank (realistic progression)
     let trustScore = 60;
+    let completedQuests = 0;
+    let hunterReputation = 0;
+    
     switch (rank) {
       case "Rookie":
         trustScore = randomInt(50, 65);
+        completedQuests = randomInt(0, 5);
+        hunterReputation = randomInt(0, 100);
         break;
       case "Veteran":
         trustScore = randomInt(65, 75);
+        completedQuests = randomInt(5, 20);
+        hunterReputation = randomInt(100, 500);
         break;
       case "Elite":
         trustScore = randomInt(75, 85);
+        completedQuests = randomInt(20, 50);
+        hunterReputation = randomInt(500, 2000);
         break;
       case "Master":
         trustScore = randomInt(85, 92);
+        completedQuests = randomInt(50, 100);
+        hunterReputation = randomInt(2000, 5000);
         break;
       case "Legendary":
         trustScore = randomInt(92, 100);
+        completedQuests = randomInt(100, 200);
+        hunterReputation = randomInt(5000, 10000);
         break;
     }
 
@@ -103,11 +148,14 @@ async function generateUsers(): Promise<any[]> {
       password: await hashPassword("demo123"),
       rank,
       trustScore,
-      credits: randomInt(100, 10000),
+      completedQuests,
+      hunterReputation,
+      credits: randomInt(completedQuests * 100, completedQuests * 500),
       skills,
       bio: generateUserBio(rank, skills),
       joinedAt: randomPastDate(365),
       lastActive: randomPastDate(30),
+      achievements: generateUserAchievements(rank, trustScore, completedQuests, randomInt(completedQuests * 100, completedQuests * 500)),
     });
 
     users.push(user);
@@ -409,17 +457,164 @@ async function generateTransactions(users: any[], bounties: any[]): Promise<void
 }
 
 /**
- * Generate activities
+ * Generate activities with realistic data based on user's role and bounties
  */
-async function generateActivities(users: any[]): Promise<void> {
+async function generateActivities(users: any[], bounties: any[], guilds: any[]): Promise<void> {
   console.log("\n📊 Generating activities...");
 
   let activityCount = 0;
 
   for (const user of users) {
-    const numActivities = randomInt(5, 15);
+    // Base number of activities depends on rank
+    let baseActivities = 5;
+    switch (user.rank) {
+      case "Rookie": baseActivities = randomInt(3, 8); break;
+      case "Veteran": baseActivities = randomInt(8, 15); break;
+      case "Elite": baseActivities = randomInt(15, 25); break;
+      case "Master": baseActivities = randomInt(25, 40); break;
+      case "Legendary": baseActivities = randomInt(40, 60); break;
+    }
 
-    for (let i = 0; i < numActivities; i++) {
+    // Check if user is a guild master
+    const isGuildMaster = guilds.some(g => g.masterId.toString() === user._id.toString());
+    
+    // Find bounties this user is involved in
+    const userBounties = bounties.filter((b: any) => 
+      b.assignedHunterIds?.some((id: any) => id.toString() === user._id.toString()) ||
+      b.clientId?.toString() === user._id.toString()
+    );
+
+    const userGuild = guilds.find((g: any) => 
+      g.masterId.toString() === user._id.toString() ||
+      g.officerIds.some((id: any) => id.toString() === user._id.toString()) ||
+      g.memberIds.some((id: any) => id.toString() === user._id.toString())
+    );
+
+    // Create bounty-related activities
+    for (const bounty of userBounties) {
+      const isClient = bounty.clientId?.toString() === user._id.toString();
+      const baseDate = new Date(bounty.postedAt);
+
+      if (isClient) {
+        // Client posted bounty
+        await Activity.create({
+          userId: user._id,
+          type: "BountyPosted",
+          description: `Posted bounty: ${bounty.title}`,
+          relatedBountyId: bounty._id,
+          impactOnTrust: 1,
+          impactOnCredits: -bounty.rewardCredits,
+          createdAt: baseDate,
+        });
+        activityCount++;
+
+        if (bounty.status === "Completed") {
+          await Activity.create({
+            userId: user._id,
+            type: "BountyCompleted",
+            description: `Bounty completed: ${bounty.title}`,
+            relatedBountyId: bounty._id,
+            impactOnTrust: 2,
+            impactOnCredits: 0,
+            createdAt: bounty.completedAt || randomPastDate(15),
+          });
+          activityCount++;
+        }
+      } else {
+        // Hunter accepted bounty
+        if (bounty.acceptedAt) {
+          await Activity.create({
+            userId: user._id,
+            type: "BountyAccepted",
+            description: `Accepted bounty: ${bounty.title}`,
+            relatedBountyId: bounty._id,
+            impactOnTrust: 0,
+            impactOnCredits: 0,
+            createdAt: bounty.acceptedAt,
+          });
+          activityCount++;
+        }
+
+        if (bounty.status === "Completed") {
+          const reward = Math.floor(bounty.rewardCredits / (bounty.assignedHunterIds?.length || 1));
+          await Activity.create({
+            userId: user._id,
+            type: "BountyCompleted",
+            description: `Completed bounty: ${bounty.title}`,
+            relatedBountyId: bounty._id,
+            impactOnTrust: randomInt(3, 7),
+            impactOnCredits: reward,
+            createdAt: bounty.completedAt || randomPastDate(15),
+          });
+          activityCount++;
+        }
+      }
+    }
+
+    // Guild master specific activities
+    if (isGuildMaster) {
+      const guild = guilds.find(g => g.masterId.toString() === user._id.toString());
+      if (guild) {
+        // Guild joined (as master when founded)
+        await Activity.create({
+          userId: user._id,
+          type: "GuildJoined",
+          description: `Founded and joined guild: ${guild.name}`,
+          relatedGuildId: guild._id,
+          impactOnTrust: 10,
+          impactOnCredits: 0,
+          createdAt: guild.foundedAt,
+        });
+        activityCount++;
+
+        // Create multiple bounty completion activities for guild success
+        const guildBountyCount = Math.min(guild.totalBountiesCompleted, 15);
+        for (let i = 0; i < guildBountyCount; i++) {
+          await Activity.create({
+            userId: user._id,
+            type: "BountyCompleted",
+            description: `Led guild to complete bounty #${i + 1}`,
+            relatedGuildId: guild._id,
+            impactOnTrust: randomInt(1, 3),
+            impactOnCredits: randomInt(500, 2000),
+            createdAt: randomPastDate(randomInt(30, 365)),
+          });
+          activityCount++;
+        }
+
+        // Rank up activity if high rank
+        if (user.rank === "Master" || user.rank === "Legendary") {
+          await Activity.create({
+            userId: user._id,
+            type: "RankUp",
+            description: `Achieved ${user.rank} rank through guild leadership`,
+            relatedGuildId: guild._id,
+            impactOnTrust: 10,
+            impactOnCredits: 0,
+            createdAt: randomPastDate(randomInt(60, 200)),
+          });
+          activityCount++;
+        }
+      }
+    }
+
+    // Guild member activities
+    if (userGuild && !isGuildMaster) {
+      await Activity.create({
+        userId: user._id,
+        type: "GuildJoined",
+        description: `Joined guild: ${userGuild.name}`,
+        relatedGuildId: userGuild._id,
+        impactOnTrust: 2,
+        impactOnCredits: 0,
+        createdAt: randomPastDate(randomInt(60, 300)),
+      });
+      activityCount++;
+    }
+
+    // Random general activities
+    const remainingActivities = Math.max(0, baseActivities - activityCount);
+    for (let i = 0; i < remainingActivities; i++) {
       const activity = generateActivity();
 
       await Activity.create({
@@ -431,6 +626,21 @@ async function generateActivities(users: any[]): Promise<void> {
         createdAt: randomPastDate(180),
       });
       activityCount++;
+    }
+
+    // Achievement activities
+    if (user.achievements && user.achievements.length > 0) {
+      for (const achievement of user.achievements) {
+        await Activity.create({
+          userId: user._id,
+          type: "AchievementUnlocked",
+          description: `Unlocked achievement: ${achievement.name}`,
+          impactOnTrust: 5,
+          impactOnCredits: 100,
+          createdAt: achievement.earnedAt,
+        });
+        activityCount++;
+      }
     }
   }
 
@@ -454,7 +664,7 @@ async function seedDatabase() {
 
     await generateMessages(users, guilds, disputes);
     await generateTransactions(users, bounties);
-    await generateActivities(users);
+    await generateActivities(users, bounties, guilds);
 
     console.log("\n✅ Database seeding completed successfully!");
     console.log("\n📝 Demo Account Credentials:");
