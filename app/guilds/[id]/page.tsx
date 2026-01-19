@@ -22,6 +22,9 @@ interface Guild {
   totalBountiesCompleted: number;
   categories: string[];
   treasuryBalance: number;
+  totalValueCleared?: number;
+  activeBountiesCount?: number;
+  stakedAmount?: number;
   masterId: any;
   memberIds: any[];
   officerIds: any[];
@@ -329,11 +332,11 @@ export default function GuildDetailPage() {
                   </div>
                   <div className="flex justify-between py-2 border-b border-white/5">
                     <span className="text-muted-foreground text-sm">Currently Active</span>
-                    <span className="font-bold">{(guild as any).activeBountiesCount || 0}</span>
+                    <span className="font-bold">{guild.activeBountiesCount || 0}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-white/5">
                     <span className="text-muted-foreground text-sm">Total Value Cleared</span>
-                    <span className="font-bold text-primary">{(guild as any).totalValueCleared?.toLocaleString()} C</span>
+                    <span className="font-bold underline text-primary">{(guild.totalValueCleared || 0).toLocaleString()} C</span>
                   </div>
                 </div>
               </Card>
@@ -347,13 +350,13 @@ export default function GuildDetailPage() {
                   </div>
                   <div className="flex justify-between py-2 border-b border-white/5">
                     <span className="text-muted-foreground text-sm">Locked in Stakes</span>
-                    <span className="font-bold text-warning">{(guild as any).stakedAmount?.toLocaleString()} C</span>
+                    <span className="font-bold text-warning">{(guild.stakedAmount || 0).toLocaleString()} C</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span className="text-muted-foreground text-sm">Avg. Reward/Member</span>
                     <span className="font-bold">
                       {members.length > 0 
-                        ? (guild.totalValueCleared / members.length).toFixed(0).toLocaleString() 
+                        ? ((guild.totalValueCleared || 0) / members.length).toFixed(0).toLocaleString() 
                         : 0} C
                     </span>
                   </div>

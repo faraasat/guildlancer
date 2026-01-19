@@ -39,56 +39,6 @@ export default function MessagesClient({ user }: MessagesClientProps) {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-// Mock messages for selected conversation
-const mockMessages = [
-  {
-    id: 1,
-    senderId: 'other',
-    senderName: 'cryptodev',
-    senderAvatar: '💻',
-    message: 'Hey, I saw your application for the security audit bounty.',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    read: true,
-  },
-  {
-    id: 2,
-    senderId: 'me',
-    senderName: 'You',
-    senderAvatar: '👤',
-    message: 'Yes! I have 5 years of experience in investigation and asset recovery.',
-    timestamp: new Date(Date.now() - 3500000).toISOString(),
-    read: true,
-  },
-  {
-    id: 3,
-    senderId: 'other',
-    senderName: 'cryptodev',
-    senderAvatar: '💻',
-    message: 'Great! Can you share some of your previous work?',
-    timestamp: new Date(Date.now() - 3400000).toISOString(),
-    read: true,
-  },
-  {
-    id: 4,
-    senderId: 'me',
-    senderName: 'You',
-    senderAvatar: '👤',
-    message: "Sure! I'll send you my portfolio link.",
-    timestamp: new Date(Date.now() - 3300000).toISOString(),
-    read: true,
-  },
-  {
-    id: 5,
-    senderId: 'other',
-    senderName: 'cryptodev',
-    senderAvatar: '💻',
-    message: 'Thanks for applying to the bounty!',
-    timestamp: new Date(Date.now() - 600000).toISOString(),
-    read: false,
-  },
-];
-
-export default function MessagesClient({ user: _user }: MessagesClientProps) {
   // Helper function to format timestamp
   const formatTimestamp = (dateString: string) => {
     if (!dateString) return '';

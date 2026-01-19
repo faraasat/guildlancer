@@ -5,14 +5,13 @@ import Link from 'next/link';
 import { 
   ArrowLeft, Target, Shield, Zap, Clock, Users, Star, 
   Award, AlertCircle, CheckCircle2, FileText, Send, 
-  ChevronRight, Bookmark, Share2, MoreVertical
+  ChevronRight, Bookmark, Share2, MoreVertical, Calendar
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 
 interface BountyDetailClientProps {
   bounty: any;

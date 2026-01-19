@@ -16,7 +16,9 @@ export interface IGuild extends Document {
   trustScore: number;
   successRate: number;
   totalBountiesCompleted: number;
+  totalBountiesFailed: number;
   totalValueCleared: number;
+  activeBountiesCount: number;
   disputeWinRate: number;
   
   // Treasury
@@ -93,6 +95,14 @@ const GuildSchema = new Schema<IGuild>({
     max: 100,
   },
   totalBountiesCompleted: {
+    type: Number,
+    default: 0,
+  },
+  totalBountiesFailed: {
+    type: Number,
+    default: 0,
+  },
+  activeBountiesCount: {
     type: Number,
     default: 0,
   },
