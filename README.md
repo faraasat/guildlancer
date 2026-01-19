@@ -16,8 +16,8 @@ npm run dev
 
 | Role          | Email                    | Rank    | Rep  | Creds  | Quests |
 | ------------- | ------------------------ | ------- | ---- | ------ | ------ |
-| guild_master  | master@demo.nexora.com   | Master  | 5080 | 99872  | 8      |
-| active_hunter | hunter@demo.nexora.com   | Elite   | 2870 | 26809  | 4      |
-| new_user      | newuser@demo.nexora.com  | Veteran | 675  | 7252   | 0      |
-| client        | client@demo.nexora.com   | Veteran | 645  | 100631 | 0      |
-| disputed      | disputed@demo.nexora.com | Veteran | 1445 | 1173   | 1      |
+| guild_master  | master@demo.nexora.com   | Elite   | 3020 | 116407 | 4      |
+| active_hunter | hunter@demo.nexora.com   | Master  | 4835 | 49537  | 7      |
+| new_user      | newuser@demo.nexora.com  | Veteran | 660  | 2061   | 0      |
+| client        | client@demo.nexora.com   | Elite   | 2080 | 93491  | 2      |
+| disputed      | disputed@demo.nexora.com | Veteran | 675  | 1843   | 0      |
