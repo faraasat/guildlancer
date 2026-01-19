@@ -5,11 +5,5 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
   const session = await auth();
   const { id } = await params;
 
-  // Fetch user data by ID
-  const user = {
-    id,
-    username: 'Loading...',
-  };
-
-  return <ProfileClient user={user} userId={id} />;
+  return <ProfileClient user={session?.user as any} userId={id} />;
 }

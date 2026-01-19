@@ -33,11 +33,18 @@ export async function getUserActivities(filters: ActivityFilters = {}) {
     const query: any = {};
     
     if (validated.userId) {
-      query.userId = new mongoose.Types.ObjectId(validated.userId);
+      if (mongoose.Types.ObjectId.isValid(validated.userId)) {
+        query.userId = new mongoose.Types.ObjectId(validated.userId);
+      } else {
+        // If not a valid ObjectId, we return empty results for this user
+        return { success: true, data: { activities: [], pagination: { total: 0, pages: 0, page: validated.page || 1, limit: validated.limit || 50 } } };
+      }
     }
 
     if (validated.relatedGuildId) {
-      query.relatedGuildId = new mongoose.Types.ObjectId(validated.relatedGuildId);
+      if (mongoose.Types.ObjectId.isValid(validated.relatedGuildId)) {
+        query.relatedGuildId = new mongoose.Types.ObjectId(validated.relatedGuildId);
+      }
     }
     
     if (validated.type) {

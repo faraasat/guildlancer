@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, TrendingUp, Award, Target, Settings, Zap, Star, Clock, Crown } from 'lucide-react';
 
 interface ProfileClientProps {
-  user: {
+  user?: {
     id: string;
     email?: string;
     username: string;
@@ -49,11 +49,18 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const targetUserId = userId || user?.id;
+  const isOwnProfile = user?.id === profile?._id || (!userId && user?.id === targetUserId);
+
   useEffect(() => {
     const fetchProfileData = async () => {
+      if (!targetUserId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const targetUserId = userId || user.id;
         
         const [profileRes, activitiesRes] = await Promise.all([
           fetch(`/api/users/${targetUserId}`),
@@ -77,7 +84,7 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
     };
 
     fetchProfileData();
-  }, [userId, user.id]);
+  }, [targetUserId]);
 
   if (loading) {
     return (
@@ -173,7 +180,7 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
                   </div>
                 </div>
               </div>
-              {!userId && (
+              {isOwnProfile && (
                 <Button asChild className="glow-primary">
                   <Link href="/settings">
                     <Settings className="mr-2 h-4 w-4" />
@@ -321,7 +328,7 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
               </Card>
 
               {/* Getting Started - Only show on own profile */}
-              {!userId && (
+              {isOwnProfile && (
                 <Card className="glass-strong border-2 border-accent/30 p-6">
                   <h3 className="text-xl font-bold mb-4">Getting Started</h3>
                   <ul className="space-y-3 text-sm">

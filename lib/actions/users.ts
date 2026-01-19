@@ -193,6 +193,10 @@ export async function getGuildMembers(guildId: string) {
   try {
     await connectDB();
     
+    if (!mongoose.Types.ObjectId.isValid(guildId)) {
+      return { success: false, error: 'Invalid guild ID format' };
+    }
+    
     const members = await User.find({ 
       guildId: new mongoose.Types.ObjectId(guildId) 
     })

@@ -18,6 +18,13 @@ interface BountyDetailClientProps {
   user: any;
 }
 
+export default function BountyDetailClient({ bounty, user }: BountyDetailClientProps) {
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const daysLeft = Math.ceil((new Date(bounty.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
   const isAssigned = bounty.assignedHunterIds?.some((h: any) => 
     (h._id || h).toString() === user?.id
   );
@@ -163,7 +170,7 @@ interface BountyDetailClientProps {
             </Card>
 
             {/* Evidence & Submission Tab */}
-            <Tabs defaultValue="overview" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className={`grid w-full ${isAssigned ? 'grid-cols-3' : 'grid-cols-2'} glass p-1`}>
                 <TabsTrigger value="overview">Evidence Requirements</TabsTrigger>
                 <TabsTrigger value="activity">Updates & Activity</TabsTrigger>
@@ -240,12 +247,10 @@ interface BountyDetailClientProps {
                   {canSubmit ? (
                     <Button 
                       className="w-full h-14 text-lg font-bold bg-success/20 text-success border-2 border-success/50 hover:bg-success/30" 
-                      asChild
+                      onClick={() => setActiveTab('submit')}
                     >
-                      <Link href={`/bounties/${bounty._id}/submit`}>
-                        <Send className="mr-2 h-5 w-5" />
-                        SUBMIT MISSION EVIDENCE
-                      </Link>
+                      <Send className="mr-2 h-5 w-5" />
+                      SUBMIT MISSION EVIDENCE
                     </Button>
                   ) : (
                     <Button 
