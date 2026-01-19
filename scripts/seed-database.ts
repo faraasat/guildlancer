@@ -217,6 +217,15 @@ async function generateGuilds(users: any[]): Promise<any[]> {
       foundedAt: randomPastDate(730),
     });
 
+    // Update member user documents with guildId and guildRole
+    for (const member of members) {
+      await User.findByIdAndUpdate(member.userId, {
+        guildId: guild._id,
+        guildRole: member.role === 'GuildMaster' ? 'Guild Master' : 
+                   member.role === 'Officer' ? 'Elite Hunter' : 'Hunter'
+      });
+    }
+
     guilds.push(guild);
   }
 
@@ -274,7 +283,7 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
     // Add guild and progress based on status
     if (status !== "Open") {
       const guild = randomElement(guilds);
-      bountyData.acceptedGuildId = guild._id;
+      bountyData.acceptedByGuildId = guild._id;
       bountyData.acceptedAt = randomPastDate(60);
 
       // Select hunters from guild members (combine all guild members)
@@ -284,7 +293,7 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
       );
       bountyData.assignedHunterIds = randomElements(
         guildMembers.map((u) => u._id),
-        randomInt(1, 3)
+        randomInt(1, Math.min(3, guildMembers.length || 1))
       );
       bountyData.guildStakeLocked = bountyData.guildStakeRequired;
     }

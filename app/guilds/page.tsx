@@ -191,9 +191,9 @@ export default function GuildsPage() {
               
               <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
                 <Button size="lg" asChild className="btn-anime border-2 border-accent/50 text-xl h-20 px-14">
-                  <Link href="/register">
-                    <span className="font-black tracking-wider">CREATE GUILD</span>
-                    <Zap className="ml-3 h-7 w-7" />
+                  <Link href="/guild">
+                    <span className="font-black tracking-wider text-accent">CREATE GUILD</span>
+                    <Zap className="ml-3 h-7 w-7 text-accent" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild className="hologram-card border-2 border-primary/50 hover:border-primary text-xl h-20 px-14 transition-cyber">

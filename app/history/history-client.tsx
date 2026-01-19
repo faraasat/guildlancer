@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,37 +27,35 @@ interface HistoryClientProps {
   };
 }
 
-// Mock activity data
-const mockActivities = [
-  {
-    id: 1,
-    type: 'joined',
-    title: 'Joined GuildLancer',
-    description: 'Welcome to the network!',
-    date: new Date().toISOString(),
-    impact: { trustScore: 0, credits: 1000 },
-    status: 'success',
-  },
-  {
-    id: 2,
-    type: 'bonus',
-    title: 'Welcome Bonus',
-    description: 'Received 1,000 starting credits',
-    date: new Date().toISOString(),
-    impact: { credits: 1000 },
-    status: 'success',
-  },
-];
-
 export default function HistoryClient({ user }: HistoryClientProps) {
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const filteredActivities = mockActivities.filter((activity) => {
-    const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filter === 'all' || activity.type === filter;
-    return matchesSearch && matchesFilter;
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        setLoading(true);
+        // We use userId filter to get current user's activities
+        const url = `/api/activities?userId=${user.id}${filter !== 'all' ? `&type=${filter}` : ''}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch activity history');
+        const data = await res.json();
+        setActivities(data.activities || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, [user.id, filter]);
+
+  const filteredActivities = activities.filter((activity) => {
+    return (activity.title || '').toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
@@ -112,13 +110,18 @@ export default function HistoryClient({ user }: HistoryClientProps) {
 
           {/* Timeline */}
           <div className="space-y-4">
-            {filteredActivities.length > 0 ? (
+            {loading ? (
+              <div className="py-20 text-center animate-pulse">
+                <Clock className="h-12 w-12 text-primary mx-auto mb-4 animate-spin-slow" />
+                <p className="font-heading font-bold text-xl tracking-widest text-primary/60">RETRACING TIMELINE...</p>
+              </div>
+            ) : filteredActivities.length > 0 ? (
               filteredActivities.map((activity) => (
                 <ActivityCard
-                  key={activity.id}
+                  key={activity._id}
                   activity={activity}
-                  isExpanded={expandedId === activity.id}
-                  onToggle={() => setExpandedId(expandedId === activity.id ? null : activity.id)}
+                  isExpanded={expandedId === activity._id}
+                  onToggle={() => setExpandedId(expandedId === activity._id ? null : activity._id)}
                 />
               ))
             ) : (
@@ -128,14 +131,14 @@ export default function HistoryClient({ user }: HistoryClientProps) {
                 <p className="text-muted-foreground">
                   {searchQuery || filter !== 'all'
                     ? 'Try adjusting your filters'
-                    : 'Start accepting missions to build your history'}
+                    : 'Your journey is just beginning. Start accepting missions!'}
                 </p>
               </Card>
             )}
           </div>
 
           {/* Pagination */}
-          {filteredActivities.length > 0 && (
+          {!loading && filteredActivities.length > 0 && (
             <div className="flex justify-center mt-8">
               <div className="flex gap-2">
                 <Button variant="outline" className="border-primary/30" disabled>
@@ -179,10 +182,12 @@ function ActivityCard({ activity, isExpanded, onToggle }: any) {
   const getStatusColor = () => {
     switch (activity.status) {
       case 'success':
+      case 'completed':
         return 'border-success/30 bg-success/10 text-success';
       case 'pending':
         return 'border-warning/30 bg-warning/10 text-warning';
       case 'failed':
+      case 'cancelled':
         return 'border-destructive/30 bg-destructive/10 text-destructive';
       default:
         return 'border-primary/30 bg-primary/10 text-primary';

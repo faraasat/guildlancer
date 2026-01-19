@@ -8,6 +8,7 @@ import { z } from 'zod';
 // Activity filters schema
 const activityFiltersSchema = z.object({
   userId: z.string().optional(),
+  relatedGuildId: z.string().optional(),
   type: z.string().optional(),
   page: z.number().min(1).optional(),
   limit: z.number().min(1).max(100).optional(),
@@ -26,9 +27,16 @@ export async function getUserActivities(filters: ActivityFilters = {}) {
     }
 
     const validated = activityFiltersSchema.parse(filters);
-    const userId = validated.userId || session.user.id;
     
-    const query: any = { userId };
+    const query: any = {};
+    
+    if (validated.userId) {
+      query.userId = validated.userId;
+    }
+
+    if (validated.relatedGuildId) {
+      query.relatedGuildId = validated.relatedGuildId;
+    }
     
     if (validated.type) {
       query.type = validated.type;

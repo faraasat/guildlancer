@@ -3,6 +3,7 @@
 import { connectDB } from '@/lib/db/mongodb';
 import { User } from '@/lib/db/models/User';
 import Guild from '@/lib/db/models/Guild';
+import Bounty from '@/lib/db/models/Bounty';
 import { z } from 'zod';
 
 // User filters schema
@@ -120,8 +121,34 @@ export async function getUserById(userId: string) {
     if (!user) {
       return { success: false, error: 'User not found' };
     }
+
+    // Dynamic stats: Count completed and active quests from Bounty model
+    const [completedQuests, activeQuests, failedQuests] = await Promise.all([
+      Bounty.countDocuments({ 
+        assignedHunterIds: user._id, 
+        status: 'Completed' 
+      }),
+      Bounty.countDocuments({ 
+        assignedHunterIds: user._id, 
+        status: { $in: ['Accepted', 'InProgress', 'Submitted', 'UnderReview'] } 
+      }),
+      Bounty.countDocuments({ 
+        assignedHunterIds: user._id, 
+        status: 'Failed' 
+      })
+    ]);
+
+    const totalFinished = completedQuests + failedQuests;
+    const successRate = totalFinished > 0 ? (completedQuests / totalFinished) * 100 : 100;
+
+    const userData = {
+      ...JSON.parse(JSON.stringify(user)),
+      completedQuests: completedQuests || user.completedQuests,
+      activeQuests: activeQuests,
+      successRate: Math.round(successRate)
+    };
     
-    return { success: true, data: user };
+    return { success: true, data: userData };
   } catch (error: any) {
     console.error('Get user by ID error:', error);
     return { success: false, error: error.message || 'Failed to fetch user' };

@@ -102,7 +102,7 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
 
   const stats = {
     completedQuests: profile.completedQuests || 0,
-    activeQuests: 0,
+    activeQuests: (profile as any).activeQuests || 0,
     credits: profile.credits || 0,
     hunterReputation: profile.hunterReputation || 0,
     trustScore: profile.trustScore || 0,
@@ -197,7 +197,7 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
                   <StatCard
                     icon={<Award />}
                     label="Success Rate"
-                    value="N/A"
+                    value={`${(profile as any).successRate || 100}%`}
                     color="success"
                   />
                   <StatCard

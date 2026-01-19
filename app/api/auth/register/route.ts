@@ -44,6 +44,25 @@ export async function POST(request: NextRequest) {
       credits: 1000, // Starting bonus
     });
 
+    // Create initial activities so profile/history isn't empty
+    const Activity = (await import('@/lib/db/models/Activity')).default;
+    await Activity.insertMany([
+      {
+        userId: user._id,
+        type: 'RankUp',
+        description: 'Initialized as Rookie Operative',
+        impactOnTrust: 50,
+        createdAt: new Date(Date.now() - 1000),
+      },
+      {
+        userId: user._id,
+        type: 'BountyCompleted', // Using this as a "Welcome" or similar
+        description: 'Received Welcome Bonus Credits',
+        impactOnCredits: 1000,
+        createdAt: new Date(),
+      }
+    ]);
+
     return NextResponse.json(
       {
         message: 'User created successfully',

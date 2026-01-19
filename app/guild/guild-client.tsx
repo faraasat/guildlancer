@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 import {
   Users,
@@ -21,6 +23,9 @@ import {
   TrendingUp,
   Award,
   Plus,
+  ArrowRight,
+  Clock,
+  Zap,
 } from 'lucide-react';
 
 interface GuildClientProps {
@@ -30,118 +35,188 @@ interface GuildClientProps {
   };
 }
 
-// Mock data - user not in a guild
-const mockGuildData = null;
-
-// Mock guild members
-const mockMembers = [
-  {
-    id: 1,
-    username: 'guildmaster',
-    avatar: '👑',
-    role: 'Guild Master',
-    rank: 'Master',
-    trustScore: 95,
-    contribution: 15000,
-    status: 'online',
-  },
-  {
-    id: 2,
-    username: 'elitehunter',
-    avatar: '⚔️',
-    role: 'Elite Hunter',
-    rank: 'Elite',
-    trustScore: 88,
-    contribution: 8500,
-    status: 'online',
-  },
-];
-
-// Mock chat messages
-const mockMessages = [
-  {
-    id: 1,
-    username: 'guildmaster',
-    avatar: '👑',
-    message: 'Welcome to the guild! Check the missions tab for active bounties.',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-  },
-];
-
-export default function GuildClient({ user: _user }: GuildClientProps) {
+export default function GuildClient({ user }: GuildClientProps) {
+  const [guild, setGuild] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
-  const [messageInput, setMessageInput] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [newGuildName, setNewGuildName] = useState('');
+  const [newGuildDesc, setNewGuildDesc] = useState('');
+
+  // Fetch guild data
+  useEffect(() => {
+    const fetchGuild = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/guilds/my-guild');
+        const data = await res.json();
+        
+        if (data && !data.error) {
+          setGuild(data);
+          // Fetch guild activity if joined
+          const activityRes = await fetch(`/api/activities?relatedGuildId=${data._id}`);
+          const activityData = await activityRes.json();
+          setActivities(activityData.activities || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch guild:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGuild();
+  }, []);
+
+  const handleCreateGuild = async () => {
+    try {
+      setIsCreating(true);
+      const res = await fetch('/api/guilds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newGuildName,
+          description: newGuildDesc,
+          categories: ['General'],
+          avatar: '🛡️'
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setGuild(data);
+      } else {
+        alert(data.error || 'Failed to create guild');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   // If user is not in a guild, show join/create interface
-  if (!mockGuildData) {
+  if (!guild) {
     return (
       <div className="min-h-screen pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
-            <div className="mb-8 text-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full glass-strong border-2 border-primary/30 mb-6">
-                <Shield className="h-10 w-10 text-primary" />
+            <div className="mb-12 text-center">
+              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full glass-strong border-2 border-primary/30 mb-8 animate-pulse">
+                <Shield className="h-12 w-12 text-primary" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-black font-heading mb-4">
-                <span className="text-gradient-primary">Join a Guild</span>
+              <h1 className="text-5xl md:text-6xl font-black font-heading mb-6 tracking-tighter">
+                <span className="text-gradient-primary">UNALIGNED OPERATIVE</span>
               </h1>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Guilds are elite teams that collaborate on high-value missions. Join an existing guild or create your own.
+              <p className="text-muted-foreground text-xl max-w-2xl mx-auto font-light">
+                Secure your legacy. Join a syndicate to dominate high-stakes bounties or establish your own faction.
               </p>
             </div>
 
             {/* Options */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              <Card className="glass-strong border-2 border-primary/30 p-8 text-center hover:border-primary/60 transition-all">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 border border-primary/30 mb-6">
-                  <Search className="h-8 w-8 text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+              <Card className="glass-strong border-2 border-primary/30 p-10 text-center hover:border-primary/60 transition-all group relative overflow-hidden">
+                <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <div className="relative z-10">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 mb-6 group-hover:scale-110 transition-transform">
+                    <Search className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-3xl font-black mb-4 font-heading italic tracking-tight">BROWSE REGISTRY</h3>
+                  <p className="text-muted-foreground mb-8">
+                    Scan active channels for established syndicates matching your specialized profile.
+                  </p>
+                  <Button asChild className="w-full glow-primary" size="lg">
+                    <Link href="/guilds">
+                      ENTER REGISTRY <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
-                <h3 className="text-2xl font-bold mb-4">Browse Guilds</h3>
-                <p className="text-muted-foreground mb-6">
-                  Explore existing guilds and request to join one that matches your skills and interests.
-                </p>
-                <Button className="w-full" size="lg">
-                  Browse Guilds
-                </Button>
               </Card>
 
-              <Card className="glass-strong border-2 border-primary/30 p-8 text-center hover:border-primary/60 transition-all">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 border border-primary/30 mb-6">
-                  <Plus className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-2xl font-bold mb-4">Create Guild</h3>
-                <p className="text-muted-foreground mb-6">
-                  Start your own guild and recruit skilled hunters to join your team.
-                </p>
-                <Button className="w-full" size="lg" variant="outline">
-                  Create New Guild
-                </Button>
-              </Card>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Card className="glass-strong border-2 border-primary/30 p-10 text-center hover:border-primary/60 transition-all group relative overflow-hidden cursor-pointer">
+                    <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <div className="relative z-10">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 mb-6 group-hover:scale-110 transition-transform">
+                        <Plus className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-3xl font-black mb-4 font-heading italic tracking-tight">FOUND GUILD</h3>
+                      <p className="text-muted-foreground mb-8">
+                        Initialize a new faction. Recruit elite talent and control your own territory.
+                      </p>
+                      <Button className="w-full" size="lg" variant="outline">
+                        INITIALIZE SEQUENCE
+                      </Button>
+                    </div>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="glass-strong border-2 border-primary/30">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-black font-heading italic">INITIALIZE NEW SYNDICATE</DialogTitle>
+                    <DialogDescription> Define your faction's identity. This process is irreversible.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-primary">Syndicate Name</label>
+                      <Input 
+                        placeholder="e.g. Shadow Vanguard" 
+                        value={newGuildName}
+                        onChange={(e) => setNewGuildName(e.target.value)}
+                        className="bg-background/50 border-primary/30"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-primary">Mission Statement</label>
+                      <Input 
+                        placeholder="Brief description of your goals..." 
+                        value={newGuildDesc}
+                        onChange={(e) => setNewGuildDesc(e.target.value)}
+                        className="bg-background/50 border-primary/30"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button 
+                      onClick={handleCreateGuild} 
+                      disabled={!newGuildName || isCreating}
+                      className="w-full glow-primary"
+                    >
+                      {isCreating ? 'INITIALIZING...' : 'ESTABLISH SYNDICATE'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* Benefits */}
-            <Card className="glass-strong border-2 border-primary/30 p-8">
-              <h3 className="text-xl font-bold mb-6 text-center">Guild Benefits</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <BenefitCard
-                  icon={<Target className="h-6 w-6" />}
-                  title="Team Missions"
-                  description="Access exclusive high-value bounties that require guild coordination"
-                />
-                <BenefitCard
-                  icon={<TrendingUp className="h-6 w-6" />}
-                  title="Shared Growth"
-                  description="Level up faster with guild bonuses and shared experience"
-                />
-                <BenefitCard
-                  icon={<Shield className="h-6 w-6" />}
-                  title="Protection"
-                  description="Guild backing in disputes and support during conflicts"
-                />
-              </div>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <BenefitItem 
+                icon={<Zap className="h-10 w-10 text-primary" />}
+                title="SYNERGY"
+                desc="Bonus credits on multi-operative missions."
+              />
+              <BenefitItem 
+                icon={<Shield className="h-10 w-10 text-primary" />}
+                title="DEFENSE"
+                desc="Collective backing during arbitration phases."
+              />
+              <BenefitItem 
+                icon={<TrendingUp className="h-10 w-10 text-primary" />}
+                title="ASCENSION"
+                desc="Access to Legendary-tier bounty channels."
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -154,50 +229,213 @@ export default function GuildClient({ user: _user }: GuildClientProps) {
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
           {/* Guild Header */}
-          <Card className="glass-strong border-2 border-primary/30 p-6 mb-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="w-20 h-20 rounded-lg glass border-2 border-primary/30 flex items-center justify-center text-4xl shrink-0">
-                🛡️
+          <Card className="glass-strong border-2 border-primary/30 p-8 mb-10 overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <Shield className="h-40 w-40 text-primary" />
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+              <div className="w-28 h-28 rounded-2xl glass border-2 border-primary/30 flex items-center justify-center text-5xl shrink-0 shadow-2xl glow-primary/20">
+                {guild.avatar || '🛡️'}
               </div>
-              <div className="flex-1">
-                <h1 className="text-3xl font-black font-heading mb-2">
-                  <span className="text-gradient-primary">Shadow Syndicate</span>
-                </h1>
-                <p className="text-muted-foreground mb-4">
-                  Elite cybersecurity specialists hunting high-value targets
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex flex-wrap items-center gap-4 mb-3 justify-center md:justify-start">
+                  <h1 className="text-4xl font-black font-heading italic tracking-tighter">
+                    <span className="text-gradient-primary uppercase">{guild.name}</span>
+                  </h1>
+                  <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1 font-black italic">
+                    {guild.rank || 'DEVELOPING'}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground text-lg mb-6 max-w-2xl font-light">
+                  {guild.description || 'No specialized profile data available.'}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-primary/20 text-primary border-primary/30">
-                    <Users className="mr-1 h-3 w-3" />
-                    {mockMembers.length} Members
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                  <Badge className="bg-background/80 border-primary/20 text-foreground px-4 py-1.5 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    {guild.memberIds?.length || 0} OPERATIVES
                   </Badge>
-                  <Badge className="bg-success/20 text-success border-success/30">
-                    <Star className="mr-1 h-3 w-3" />
-                    Level 5
+                  <Badge className="bg-background/80 border-success/20 text-success px-4 py-1.5 flex items-center gap-2">
+                    <Star className="h-4 w-4 fill-success" />
+                    TRUST: {guild.trustScore}%
                   </Badge>
-                  <Badge className="bg-warning/20 text-warning border-warning/30">
-                    <Award className="mr-1 h-3 w-3" />
-                    Top 10%
+                  <Badge className="bg-background/80 border-warning/20 text-warning px-4 py-1.5 flex items-center gap-2">
+                    <Award className="h-4 w-4" />
+                    SUCCESS: {guild.successRate}%
                   </Badge>
                 </div>
               </div>
-              <Button variant="outline" className="border-primary/30">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
+              <div className="flex flex-col gap-3 shrink-0">
+                <Button variant="outline" className="border-primary/30 h-12 px-6 font-black uppercase tracking-wider">
+                  <Settings className="mr-2 h-4 w-4" />
+                  CONFIG
+                </Button>
+                <Button className="glow-primary h-12 px-6 font-black uppercase tracking-wider">
+                  INVITE
+                </Button>
+              </div>
             </div>
           </Card>
 
-          {/* Tabs */}
+          {/* Performance Summary (Dynamic Performance Stats) */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <PerformanceStat 
+              label="TOTAL EARNINGS"
+              value={`${(guild.performance?.totalEarnings || 0).toLocaleString()} ¢`}
+              sub="COMMUNAL POOL"
+            />
+            <PerformanceStat 
+              label="COMPLETED"
+              value={guild.performance?.completedCount || 0}
+              sub="ACTIVE MISSIONS"
+            />
+            <PerformanceStat 
+              label="AVG TRUST"
+              value={`${guild.trustScore}%`}
+              sub="AGGREGATE"
+            />
+            <PerformanceStat 
+              label="GLOBAL RANK"
+              value="#12"
+              sub="REGISTRY LISTING"
+            />
+          </div>
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="glass-strong border-2 border-primary/30 p-1">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="comms">
-                Comm-Link
-                <Badge className="ml-2 bg-primary/20 text-primary border-none">3</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="members">Members</TabsTrigger>
-              <TabsTrigger value="missions">Missions</TabsTrigger>
+            <TabsList className="glass-strong border-2 border-primary/30 p-1 bg-background/50">
+              <TabsTrigger value="overview" className="px-8 py-3 font-black uppercase tracking-tighter">OVERVIEW</TabsTrigger>
+              <TabsTrigger value="activity" className="px-8 py-3 font-black uppercase tracking-tighter">ACTIVITY</TabsTrigger>
+              <TabsTrigger value="members" className="px-8 py-3 font-black uppercase tracking-tighter">ROSTER</TabsTrigger>
+              <TabsTrigger value="treasury" className="px-8 py-3 font-black uppercase tracking-tighter">TREASURY</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <Card className="glass-strong border-2 border-primary/30 p-8">
+                    <h3 className="text-xl font-black font-heading italic mb-6 text-primary tracking-widest">SYNDICATE ANNOUNCEMENTS</h3>
+                    <div className="space-y-6">
+                      <div className="p-5 border-l-4 border-primary bg-primary/5 rounded-r-xl">
+                        <h4 className="font-bold mb-2 uppercase text-foreground">Welcome to Headquarters</h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">System initialized. Secure your communication channels and begin mission acquisition.</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="glass-strong border-2 border-primary/30 p-8">
+                    <h3 className="text-xl font-black font-heading italic mb-6 text-primary tracking-widest">PRIMARY OBJECTIVES</h3>
+                     <div className="flex flex-col items-center justify-center py-10 opacity-30">
+                        <Target className="h-16 w-16 mb-4" />
+                        <p className="font-bold tracking-widest">NO ACTIVE DIRECTIVES</p>
+                     </div>
+                  </Card>
+               </div>
+            </TabsContent>
+
+            <TabsContent value="activity">
+                <Card className="glass-strong border-2 border-primary/30 p-8">
+                  <h3 className="text-xl font-black font-heading italic mb-6 text-primary tracking-widest uppercase">SYNCHRONIZED TIMELINE</h3>
+                  <div className="space-y-6">
+                    {activities.length > 0 ? (
+                      activities.map((act, i) => (
+                        <div key={i} className="flex gap-4 p-4 hover:bg-primary/5 transition-colors rounded-xl border border-transparent hover:border-primary/20">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <Clock className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-1">
+                              <h4 className="font-bold text-foreground">{act.title}</h4>
+                              <span className="text-[10px] text-muted-foreground uppercase">{new Date(act.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{act.description}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-10 opacity-40 italic">No faction records localized.</div>
+                    )}
+                  </div>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="members">
+               <Card className="glass-strong border-2 border-primary/30 p-8">
+                  <h3 className="text-xl font-black font-heading italic mb-8 text-primary tracking-widest uppercase">OPERATIVE ROSTER</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-primary/20 text-left">
+                          <th className="pb-4 font-black uppercase text-xs tracking-widest opacity-60">OPERATIVE</th>
+                          <th className="pb-4 font-black uppercase text-xs tracking-widest opacity-60">ROLE</th>
+                          <th className="pb-4 font-black uppercase text-xs tracking-widest opacity-60 text-right">TRUST</th>
+                          <th className="pb-4 font-black uppercase text-xs tracking-widest opacity-60 text-right">CREDITS</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-primary/10">
+                        {guild.members?.map((m: any, i: number) => (
+                          <tr key={i} className="group hover:bg-primary/5 transition-colors">
+                            <td className="py-5">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg glass border border-primary/20 flex items-center justify-center text-xl">
+                                  {m.avatar || '👤'}
+                                </div>
+                                <span className="font-bold group-hover:text-primary transition-colors">{m.username}</span>
+                                {m._id === guild.masterId && <Crown className="h-4 w-4 text-warning" />}
+                              </div>
+                            </td>
+                            <td className="py-5">
+                              <Badge variant="outline" className="border-primary/30 uppercase text-[10px] font-black tracking-tighter">
+                                {m._id === guild.masterId ? 'GUILD MASTER' : 'OPERATIVE'}
+                              </Badge>
+                            </td>
+                            <td className="py-5 text-right font-black text-primary">{m.trustScore || 100}</td>
+                            <td className="py-5 text-right font-black">{(m.totalEarnings || 0).toLocaleString()} ¢</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+               </Card>
+            </TabsContent>
+
+            <TabsContent value="treasury">
+              <Card className="glass-strong border-2 border-primary/30 p-12 text-center">
+                <Wallet className="h-20 w-20 text-primary/40 mx-auto mb-6 animate-bounce-slow" />
+                <h3 className="text-3xl font-black font-heading italic mb-2 tracking-tighter uppercase">FACTION RESERVES</h3>
+                <p className="text-6xl font-black font-heading mb-4 text-primary glow-primary-text">
+                  {(guild.performance?.totalEarnings || 0).toLocaleString()} <span className="text-2xl text-foreground">¢</span>
+                </p>
+                <div className="flex justify-center gap-4 mt-8">
+                   <Button variant="outline" className="border-primary/30 px-8">DEPOSIT</Button>
+                   <Button className="glow-primary px-8">ALLOCATE FUNDS</Button>
+                </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PerformanceStat({ label, value, sub }: { label: string; value: any; sub: string }) {
+  return (
+    <Card className="glass-strong border-2 border-primary/20 p-6 hover:border-primary/50 transition-all group">
+      <h4 className="text-[10px] font-black text-primary tracking-[0.2em] mb-2">{label}</h4>
+      <p className="text-3xl font-black font-heading mb-1 tracking-tighter group-hover:scale-105 transition-transform">{value}</p>
+      <p className="text-[10px] font-bold text-muted-foreground uppercase">{sub}</p>
+    </Card>
+  );
+}
+
+function BenefitItem({ icon, title, desc }: { icon: any; title: string; desc: string }) {
+  return (
+    <div className="text-center group">
+       <div className="mb-4 inline-flex group-hover:scale-110 transition-transform">{icon}</div>
+       <h4 className="text-lg font-black font-heading italic tracking-wider mb-2">{title}</h4>
+       <p className="text-sm text-muted-foreground font-light">{desc}</p>
+    </div>
+  );
+}
               <TabsTrigger value="treasury">Treasury</TabsTrigger>
             </TabsList>
 

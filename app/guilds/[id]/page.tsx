@@ -33,8 +33,12 @@ export default function GuildDetailPage() {
   const params = useParams();
   const [guild, setGuild] = useState<Guild | null>(null);
   const [members, setMembers] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [isJoining, setIsJoining] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   useEffect(() => {
     const fetchGuildData = async () => {
@@ -42,9 +46,11 @@ export default function GuildDetailPage() {
         setLoading(true);
         const guildId = params.id as string;
         
-        const [guildRes, membersRes] = await Promise.all([
+        const [guildRes, membersRes, activitiesRes, myGuildRes] = await Promise.all([
           fetch(`/api/guilds/${guildId}`),
-          fetch(`/api/guilds/${guildId}/members`)
+          fetch(`/api/guilds/${guildId}/members`),
+          fetch(`/api/activities?relatedGuildId=${guildId}&limit=10`),
+          fetch('/api/guilds/my-guild')
         ]);
 
         if (!guildRes.ok) {
@@ -53,9 +59,16 @@ export default function GuildDetailPage() {
 
         const guildData = await guildRes.json();
         const membersData = membersRes.ok ? await membersRes.json() : [];
+        const activitiesData = activitiesRes.ok ? await activitiesRes.json() : { activities: [] };
+        const myGuildData = myGuildRes.ok ? await myGuildRes.json() : null;
 
         setGuild(guildData);
         setMembers(membersData || []);
+        setActivities(activitiesData.activities || []);
+        
+        if (myGuildData && myGuildData._id === guildId) {
+          setJoined(true);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -67,6 +80,32 @@ export default function GuildDetailPage() {
       fetchGuildData();
     }
   }, [params.id]);
+
+  const handleJoin = async () => {
+    try {
+      setIsJoining(true);
+      const res = await fetch(`/api/guilds/${params.id}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'join' })
+      });
+      
+      if (res.ok) {
+        setJoined(true);
+        // Refresh members
+        const membersRes = await fetch(`/api/guilds/${params.id}/members`);
+        const membersData = await membersRes.json();
+        setMembers(membersData || []);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to join guild');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -122,14 +161,21 @@ export default function GuildDetailPage() {
                   <p className="text-foreground/80 leading-relaxed mb-6">{guild.description}</p>
                   
                   <div className="flex flex-wrap gap-4">
-                    <Button size="lg" className="glow-primary">
+                    <Button 
+                      size="lg" 
+                      className={joined ? "bg-success/20 text-success border-success/30" : "glow-primary"} 
+                      onClick={handleJoin}
+                      disabled={joined || isJoining}
+                    >
                       <Users className="mr-2 h-5 w-5" />
-                      Request to Join
+                      {joined ? 'COMM CHANNEL ACTIVE' : isJoining ? 'INITIALIZING...' : 'Request to Join'}
                     </Button>
-                    <Button size="lg" variant="outline" className="border-primary/30">
-                      <Target className="mr-2 h-5 w-5" />
-                      View Quests
-                    </Button>
+                    <Link href={`/guild?id=${guild._id}`}>
+                      <Button size="lg" variant="outline" className="border-primary/30">
+                        <Target className="mr-2 h-5 w-5" />
+                        Enter HQ
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -227,12 +273,104 @@ export default function GuildDetailPage() {
 
           {/* Activity Tab */}
           <TabsContent value="activity" className="space-y-4">
-            <p className="text-muted-foreground text-center py-8">Activity feed coming soon...</p>
+            {activities.length > 0 ? (
+              <div className="space-y-4">
+                {activities.map((activity: any) => (
+                  <Card key={activity._id} className="glass border-primary/20 p-4 flex gap-4 items-center">
+                    <ActivityIcon type={activity.type} />
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{activity.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(activity.createdAt).toLocaleDateString()} at {new Date(activity.createdAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                    {activity.impactOnCredits !== 0 && (
+                      <div className={`text-sm font-bold ${activity.impactOnCredits > 0 ? 'text-success' : 'text-warning'}`}>
+                        {activity.impactOnCredits > 0 ? '+' : ''}{activity.impactOnCredits} C
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">No recent activity found for this guild.</p>
+            )}
           </TabsContent>
 
           {/* Performance Tab */}
-          <TabsContent value="stats">
-            <p className="text-muted-foreground text-center py-8">Performance analytics coming soon...</p>
+          <TabsContent value="stats" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="glass-strong border-2 border-primary/20 p-6">
+                <h4 className="text-sm font-bold text-muted-foreground uppercase mb-4">Success Rate Breakdown</h4>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Completion Rate</span>
+                    <span className="text-success font-bold">{guild.successRate.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-background/50 rounded-full h-2 overflow-hidden">
+                    <div className="bg-success h-full" style={{ width: `${guild.successRate}%` }}></div>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Dispute Win Rate</span>
+                    <span className="text-secondary font-bold">{(guild as any).disputeWinRate || 0}%</span>
+                  </div>
+                  <div className="w-full bg-background/50 rounded-full h-2 overflow-hidden">
+                    <div className="bg-secondary h-full" style={{ width: `${(guild as any).disputeWinRate || 0}%` }}></div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="glass-strong border-2 border-primary/20 p-6">
+                <h4 className="text-sm font-bold text-muted-foreground uppercase mb-4">Mission Statistics</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b border-white/5">
+                    <span className="text-muted-foreground text-sm">Total Completed</span>
+                    <span className="font-bold">{guild.totalBountiesCompleted}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-white/5">
+                    <span className="text-muted-foreground text-sm">Currently Active</span>
+                    <span className="font-bold">{(guild as any).activeBountiesCount || 0}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-white/5">
+                    <span className="text-muted-foreground text-sm">Total Value Cleared</span>
+                    <span className="font-bold text-primary">{(guild as any).totalValueCleared?.toLocaleString()} C</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="glass-strong border-2 border-primary/20 p-6">
+                <h4 className="text-sm font-bold text-muted-foreground uppercase mb-4">Guild Economy</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b border-white/5">
+                    <span className="text-muted-foreground text-sm">Treasury Balance</span>
+                    <span className="font-bold text-success">{guild.treasuryBalance?.toLocaleString()} C</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-white/5">
+                    <span className="text-muted-foreground text-sm">Locked in Stakes</span>
+                    <span className="font-bold text-warning">{(guild as any).stakedAmount?.toLocaleString()} C</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-muted-foreground text-sm">Avg. Reward/Member</span>
+                    <span className="font-bold">
+                      {members.length > 0 
+                        ? (guild.totalValueCleared / members.length).toFixed(0).toLocaleString() 
+                        : 0} C
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+            
+            <div className="p-8 glass-strong border-2 border-primary/20 rounded-xl text-center">
+              <TrendingUp className="h-10 w-10 text-primary mx-auto mb-4 opacity-50" />
+              <h4 className="text-xl font-bold mb-2">Historical Analytics</h4>
+              <p className="text-muted-foreground max-w-lg mx-auto mb-6">
+                Progress tracking and month-over-month performance charts will appear here as the guild completes more missions.
+              </p>
+              <div className="max-w-2xl mx-auto h-48 bg-white/5 rounded-lg flex items-center justify-center border border-dashed border-primary/20">
+                <span className="text-sm text-muted-foreground italic">Chart data aggregating...</span>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

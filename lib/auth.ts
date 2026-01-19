@@ -40,6 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             avatar: user.avatar,
             rank: user.rank,
             trustScore: user.trustScore,
+            guildId: user.guildId?.toString(),
           };
         } catch (error) {
           console.error('Auth error:', error);
@@ -60,6 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.avatar = user.avatar;
         token.rank = user.rank;
         token.trustScore = user.trustScore;
+        token.guildId = (user as any).guildId;
       }
       return token;
     },
@@ -70,6 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.avatar = token.avatar as string;
         session.user.rank = token.rank as string;
         session.user.trustScore = token.trustScore as number;
+        (session.user as any).guildId = token.guildId as string;
       }
       return session;
     },

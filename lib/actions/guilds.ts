@@ -385,13 +385,51 @@ export async function getGuildById(guildId: string) {
     if (!guild) {
       return { success: false, error: 'Guild not found' };
     }
+
+    // Dynamic stats: Count from bounties
+    const [completedBounties, allActiveBounties] = await Promise.all([
+      Bounty.find({ acceptedByGuildId: guild._id, status: 'Completed' }),
+      Bounty.countDocuments({ 
+        acceptedByGuildId: guild._id, 
+        status: { $in: ['Accepted', 'InProgress', 'Submitted', 'UnderReview'] } 
+      })
+    ]);
+
+    const totalValueCleared = completedBounties.reduce((sum, b) => sum + (b.rewardCredits || 0), 0);
+    const totalBountiesCompleted = completedBounties.length;
     
-    return { success: true, data: JSON.parse(JSON.stringify(guild)) };
+    // Simple success rate calculation for demo: (completed / (completed + failed/cancelled))
+    // For now we'll just use (completed / (total assigned)) if possible, or keep it simple
+    const successRate = totalBountiesCompleted > 0 
+      ? (totalBountiesCompleted / (totalBountiesCompleted + (guild.totalBountiesFailed || 0))) * 100 
+      : guild.successRate;
+
+    const guildData = {
+      ...JSON.parse(JSON.stringify(guild)),
+      totalBountiesCompleted,
+      totalValueCleared,
+      successRate: Math.min(100, successRate),
+      activeBountiesCount: allActiveBounties,
+      performance: {
+        totalEarnings: totalValueCleared,
+        completedCount: totalBountiesCompleted,
+        activeCount: allActiveBounties,
+        successRate: Math.min(100, successRate)
+      },
+      members: [
+        ...(guild.masterId ? [guild.masterId] : []),
+        ...(guild.officerIds || []),
+        ...(guild.memberIds || [])
+      ]
+    };
+    
+    return { success: true, data: guildData };
   } catch (error: any) {
     console.error('Get guild error:', error);
     return { success: false, error: error.message || 'Failed to fetch guild' };
   }
 }
+
 
 // Get guild stats and analytics
 export async function getGuildStats(guildId: string) {
