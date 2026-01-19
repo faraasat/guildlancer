@@ -5,6 +5,7 @@ import { User } from '@/lib/db/models/User';
 import Guild from '@/lib/db/models/Guild';
 import Bounty from '@/lib/db/models/Bounty';
 import { z } from 'zod';
+import mongoose from 'mongoose';
 
 // User filters schema
 const userFiltersSchema = z.object({
@@ -192,7 +193,9 @@ export async function getGuildMembers(guildId: string) {
   try {
     await connectDB();
     
-    const members = await User.find({ guildId })
+    const members = await User.find({ 
+      guildId: new mongoose.Types.ObjectId(guildId) 
+    })
       .select('-password')
       .sort({ guildRole: 1, trustScore: -1 })
       .lean();

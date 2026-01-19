@@ -18,11 +18,11 @@ interface BountyDetailClientProps {
   user: any;
 }
 
-export default function BountyDetailClient({ bounty, user }: BountyDetailClientProps) {
-  const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const isAssigned = bounty.assignedHunterIds?.some((h: any) => 
+    (h._id || h).toString() === user?.id
+  );
 
-  const daysLeft = Math.ceil((new Date(bounty.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const canSubmit = isAssigned && bounty.status === 'InProgress';
   
   const handleApply = async () => {
     if (!user) {
@@ -164,9 +164,10 @@ export default function BountyDetailClient({ bounty, user }: BountyDetailClientP
 
             {/* Evidence & Submission Tab */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 glass p-1">
+              <TabsList className={`grid w-full ${isAssigned ? 'grid-cols-3' : 'grid-cols-2'} glass p-1`}>
                 <TabsTrigger value="overview">Evidence Requirements</TabsTrigger>
                 <TabsTrigger value="activity">Updates & Activity</TabsTrigger>
+                {isAssigned && <TabsTrigger value="submit">Submit Evidence</TabsTrigger>}
               </TabsList>
               <TabsContent value="overview">
                 <Card className="glass-strong border-2 border-primary/20 p-6 mt-4">
@@ -181,6 +182,42 @@ export default function BountyDetailClient({ bounty, user }: BountyDetailClientP
                   <p className="text-muted-foreground text-sm italic">No updates recorded yet for this mission.</p>
                 </Card>
               </TabsContent>
+              {isAssigned && (
+                <TabsContent value="submit">
+                  <Card className="glass-strong border-2 border-primary/20 p-6 mt-4">
+                    <h4 className="font-bold mb-4">Submit Mission Evidence</h4>
+                    {bounty.status === 'InProgress' ? (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Submission Details</label>
+                          <textarea 
+                            className="w-full bg-background/50 border border-primary/20 rounded-lg p-3 text-sm min-h-32 focus:border-primary/50 outline-none"
+                            placeholder="Describe what you've completed..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Evidence Links (GitHub, Demo, etc.)</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-background/50 border border-primary/20 rounded-lg p-3 text-sm focus:border-primary/50 outline-none"
+                            placeholder="https://..."
+                          />
+                        </div>
+                        <Button className="w-full glow-primary">
+                          <Send className="mr-2 h-4 w-4" />
+                          Submit for Review
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground italic">
+                        {bounty.status === 'UnderReview' ? 'Mission is currently under review.' : 
+                         bounty.status === 'Completed' ? 'Mission has been completed successfully.' : 
+                         'Mission must be accepted before submission.'}
+                      </div>
+                    )}
+                  </Card>
+                </TabsContent>
+              )}
             </Tabs>
           </div>
 
@@ -200,15 +237,30 @@ export default function BountyDetailClient({ bounty, user }: BountyDetailClientP
                 </div>
                 
                 <div className="space-y-3 pt-6 border-t border-primary/20">
-                  <Button 
-                    className="w-full h-14 text-lg font-bold glow-primary" 
-                    onClick={handleApply}
-                    disabled={submitting || bounty.status !== 'Open'}
-                  >
-                    {submitting ? 'PROCESSING...' : 'ACCEPT MISSION'}
-                  </Button>
+                  {canSubmit ? (
+                    <Button 
+                      className="w-full h-14 text-lg font-bold bg-success/20 text-success border-2 border-success/50 hover:bg-success/30" 
+                      asChild
+                    >
+                      <Link href={`/bounties/${bounty._id}/submit`}>
+                        <Send className="mr-2 h-5 w-5" />
+                        SUBMIT MISSION EVIDENCE
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="w-full h-14 text-lg font-bold glow-primary" 
+                      onClick={handleApply}
+                      disabled={submitting || bounty.status !== 'Open'}
+                    >
+                      {submitting ? 'PROCESSING...' : 
+                       bounty.status === 'Open' ? 'ACCEPT MISSION' : 
+                       bounty.status === 'InProgress' ? 'MISSION IN PROGRESS' : 
+                       bounty.status === 'Completed' ? 'MISSION COMPLETE' : 'MISSION UNAVAILABLE'}
+                    </Button>
+                  )}
                   <p className="text-[10px] text-muted-foreground uppercase">
-                    Requires {bounty.guildStakeRequired.toLocaleString()} C Guild Stake
+                    {bounty.status === 'Open' ? `Requires ${bounty.guildStakeRequired.toLocaleString()} C Guild Stake` : `Mission Status: ${bounty.status}`}
                   </p>
                 </div>
               </div>

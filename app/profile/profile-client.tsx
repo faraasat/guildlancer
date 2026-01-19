@@ -106,7 +106,7 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
     credits: profile.credits || 0,
     hunterReputation: profile.hunterReputation || 0,
     trustScore: profile.trustScore || 0,
-    joinDate: new Date(profile.joinedAt).toLocaleDateString(),
+    joinDate: new Date(profile.joinedAt || (profile as any).createdAt).toLocaleDateString(),
     lastActive: new Date(profile.lastActive).toLocaleDateString(),
   };
 
@@ -144,8 +144,20 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
                   </div>
                   <p className="text-muted-foreground mb-3">
                     Member since {stats.joinDate}
-                  </p>
-                  <div className="flex items-center gap-4">
+                  </p>                    {profile.guildId && (
+                      <Link 
+                        href={`/guilds/${profile.guildId._id || profile.guildId}`}
+                        className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors inline-flex"
+                      >
+                        <Shield className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-bold text-primary">
+                          {profile.guildId.name || 'View Guild'}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          ({(profile as any).guildRole || 'Member'})
+                        </span>
+                      </Link>
+                    )}                  <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-primary" />
                       <span className="text-sm">
@@ -308,28 +320,36 @@ export default function ProfileClient({ user, userId }: ProfileClientProps) {
                 </div>
               </Card>
 
-              {/* Getting Started */}
-              <Card className="glass-strong border-2 border-accent/30 p-6">
-                <h3 className="text-xl font-bold mb-4">Getting Started</h3>
-                <ul className="space-y-3 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-success">✓</span>
-                    <span>Create your account</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-muted-foreground">○</span>
-                    <span className="text-muted-foreground">Complete your profile</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-muted-foreground">○</span>
-                    <span className="text-muted-foreground">Join or create a guild</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-muted-foreground">○</span>
-                    <span className="text-muted-foreground">Accept your first quest</span>
-                  </li>
-                </ul>
-              </Card>
+              {/* Getting Started - Only show on own profile */}
+              {!userId && (
+                <Card className="glass-strong border-2 border-accent/30 p-6">
+                  <h3 className="text-xl font-bold mb-4">Getting Started</h3>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-success">✓</span>
+                      <span>Create your account</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className={`text-${profile.skills?.length > 0 ? 'success' : 'muted-foreground'}`}>
+                        {profile.skills?.length > 0 ? '✓' : '○'}
+                      </span>
+                      <span className={profile.skills?.length > 0 ? '' : 'text-muted-foreground'}>Complete your profile</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className={`text-${profile.guildId ? 'success' : 'muted-foreground'}`}>
+                        {profile.guildId ? '✓' : '○'}
+                      </span>
+                      <span className={profile.guildId ? '' : 'text-muted-foreground'}>Join or create a guild</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className={`text-${stats.completedQuests > 0 ? 'success' : 'muted-foreground'}`}>
+                        {stats.completedQuests > 0 ? '✓' : '○'}
+                      </span>
+                      <span className={stats.completedQuests > 0 ? '' : 'text-muted-foreground'}>Accept your first quest</span>
+                    </li>
+                  </ul>
+                </Card>
+              )}
             </div>
           </div>
         </div>

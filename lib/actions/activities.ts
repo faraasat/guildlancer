@@ -2,8 +2,12 @@
 
 import { connectDB } from '@/lib/db/mongodb';
 import Activity from '@/lib/db/models/Activity';
+import Bounty from '@/lib/db/models/Bounty';
+import Guild from '@/lib/db/models/Guild';
+import Dispute from '@/lib/db/models/Dispute';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
+import mongoose from 'mongoose';
 
 // Activity filters schema
 const activityFiltersSchema = z.object({
@@ -20,22 +24,20 @@ export type ActivityFilters = z.infer<typeof activityFiltersSchema>;
 export async function getUserActivities(filters: ActivityFilters = {}) {
   try {
     await connectDB();
-    const session = await auth();
     
-    if (!session?.user?.id) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    // Viewing activities is public, but we still check session if needed for other logic
+    const session = await auth();
 
     const validated = activityFiltersSchema.parse(filters);
     
     const query: any = {};
     
     if (validated.userId) {
-      query.userId = validated.userId;
+      query.userId = new mongoose.Types.ObjectId(validated.userId);
     }
 
     if (validated.relatedGuildId) {
-      query.relatedGuildId = validated.relatedGuildId;
+      query.relatedGuildId = new mongoose.Types.ObjectId(validated.relatedGuildId);
     }
     
     if (validated.type) {

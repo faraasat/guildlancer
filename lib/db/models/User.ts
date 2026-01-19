@@ -26,6 +26,7 @@ export interface IUser {
     description: string;
     earnedAt: Date;
   }[];
+  joinedAt: Date;
   createdAt: Date;
   updatedAt: Date;
   lastActive: Date;
@@ -119,6 +120,10 @@ const UserSchema = new Schema<IUser>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    joinedAt: {
+      type: Date,
+      default: Date.now,
     },
     achievements: [
       {

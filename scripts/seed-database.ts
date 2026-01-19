@@ -241,11 +241,11 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
 
   const bounties: any[] = [];
   const statuses = [
-    { value: "Open", weight: 20 },
-    { value: "InProgress", weight: 30 },
+    { value: "Open", weight: 15 },
+    { value: "InProgress", weight: 25 },
     { value: "UnderReview", weight: 15 },
-    { value: "Completed", weight: 30 },
-    { value: "Disputed", weight: 5 },
+    { value: "Completed", weight: 35 },
+    { value: "Disputed", weight: 10 },
   ];
 
   for (let i = 0; i < 100; i++) {
@@ -255,9 +255,9 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
     const status = weightedRandom(statuses);
     const reward = randomInt(500, 10000);
 
-    const client = randomElement(users);
-    const postedDate = randomPastDate(90);
-    const daysToDeadline = randomInt(7, 60);
+    const client = i < DEMO_ACCOUNTS.length ? users.find(u => u.email === DEMO_ACCOUNTS[i].email) : randomElement(users);
+    const postedDate = randomPastDate(120);
+    const daysToDeadline = randomInt(15, 60);
     const deadline = new Date(postedDate.getTime() + daysToDeadline * 24 * 60 * 60 * 1000);
     
     const bountyData: any = {
@@ -265,11 +265,12 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
       description,
       category,
       rewardCredits: reward,
-      guildStakeRequired: Math.floor(reward * 0.1), // 10% of reward
-      clientStake: Math.floor(reward * 0.2), // 20% of reward
-      requiredSkills: randomElements(SKILLS, randomInt(1, 3)),
-      evidenceRequirements: "Please provide proof of completion with screenshots, links, or detailed documentation.",
-      minHunterRank: randomElement(['Rookie', 'Veteran', 'Elite'] as const),
+      reputationBonus: Math.floor(reward / 10),
+      guildStakeRequired: Math.floor(reward * 0.1),
+      clientStake: Math.floor(reward * 0.2),
+      requiredSkills: randomElements(SKILLS, randomInt(1, 4)),
+      evidenceRequirements: "Full source code, documentation, and a live demo link are required.",
+      minHunterRank: randomElement(['Rookie', 'Veteran', 'Elite', 'Master'] as const),
       minGuildTrust: randomInt(0, 500),
       status,
       urgency: randomElement(["Low", "Medium", "High", "Critical"]),
@@ -284,17 +285,40 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
     if (status !== "Open") {
       const guild = randomElement(guilds);
       bountyData.acceptedByGuildId = guild._id;
-      bountyData.acceptedAt = randomPastDate(60);
+      bountyData.acceptedAt = new Date(postedDate.getTime() + randomInt(1, 3) * 24 * 60 * 60 * 1000);
 
-      // Select hunters from guild members (combine all guild members)
+      // Select hunters from guild members
       const allGuildMemberIds = [guild.masterId, ...guild.officerIds, ...guild.memberIds];
       const guildMembers = users.filter((u) =>
         allGuildMemberIds.some((id: any) => id.toString() === u._id.toString())
       );
-      bountyData.assignedHunterIds = randomElements(
-        guildMembers.map((u) => u._id),
-        randomInt(1, Math.min(3, guildMembers.length || 1))
-      );
+      
+      // Sort members by rank to favor higher ranked hunters for complex bounties
+      const sortedMembers = [...guildMembers].sort((a, b) => {
+        const ranks = ['Rookie', 'Veteran', 'Elite', 'Master', 'Legendary'];
+        return ranks.indexOf(b.rank) - ranks.indexOf(a.rank);
+      });
+
+      // If it's a high reward bounty, pick higher rank hunters
+      const potentialHunters = reward > 5000 
+        ? sortedMembers.slice(0, Math.ceil(sortedMembers.length / 2))
+        : sortedMembers;
+
+      // Force some involvement for demo accounts in the first few bounties
+      if (i < 20) {
+        const demoHunters = users.filter(u => 
+          u.email === 'hunter@demo.nexora.com' || u.email === 'master@demo.nexora.com'
+        ).map(u => u._id);
+        
+        if (demoHunters.length > 0) {
+          bountyData.assignedHunterIds = [randomElement(demoHunters)];
+        }
+      } else {
+        bountyData.assignedHunterIds = randomElements(
+          potentialHunters.map((u) => u._id),
+          randomInt(1, Math.min(3, potentialHunters.length || 1))
+        );
+      }
       bountyData.guildStakeLocked = bountyData.guildStakeRequired;
     }
 
@@ -331,12 +355,57 @@ async function generateBounties(users: any[], guilds: any[]): Promise<any[]> {
 }
 
 /**
- * Generate disputes (simplified for demo)
+ * Generate disputes
  */
 async function generateDisputes(bounties: any[], users: any[]): Promise<any[]> {
   console.log("\n⚖️  Generating disputes...");
-  console.log("✓ Skipping disputes for now (complex model requirements)");
-  return [];
+
+  const disputes: any[] = [];
+  const disputedBounties = bounties.filter(b => b.status === "Disputed");
+
+  for (const bounty of disputedBounties) {
+    const client = users.find(u => u._id.toString() === bounty.clientId.toString());
+    
+    const dispute = await Dispute.create({
+      bountyId: bounty._id,
+      clientId: bounty.clientId,
+      guildId: bounty.acceptedByGuildId,
+      clientEvidence: {
+        text: "The delivery does not meet the initial requirements. Several features are missing and the code quality is below standards.",
+        images: ["https://placehold.co/600x400?text=Issue+Screenshot"],
+        links: ["https://github.com/demo/project/issues/1"],
+      },
+      guildEvidence: {
+        text: "We have fulfilled all requirements specified in the initial bounty description. The client is asking for additional features not in the original scope.",
+        images: ["https://placehold.co/600x400?text=Requirement+Proof"],
+        links: ["https://github.com/demo/project/pull/1"],
+      },
+      tier: randomElement(["Negotiation", "AIArbiter", "Tribunal"]),
+      status: randomElement(["Open", "Negotiating", "AIAnalysis", "InTribunal", "Resolved"]),
+      clientStakeAtRisk: Math.floor(bounty.rewardCredits * 0.2),
+      guildStakeAtRisk: bounty.guildStakeLocked,
+      createdAt: randomPastDate(7),
+    });
+
+    if (dispute.status === "Resolved") {
+      dispute.finalRuling = randomElement(["ClientWins", "GuildWins", "Split"]);
+      dispute.resolvedAt = new Date();
+      await dispute.save();
+      
+      // Update bounty status if resolved
+      await Bounty.findByIdAndUpdate(bounty._id, { 
+        status: dispute.finalRuling === "GuildWins" ? "Completed" : "Failed" 
+      });
+    }
+
+    // Update bounty with disputeId
+    await Bounty.findByIdAndUpdate(bounty._id, { disputeId: dispute._id });
+    
+    disputes.push(dispute);
+  }
+
+  console.log(`✓ Created ${disputes.length} disputes`);
+  return disputes;
 }
 
 /**
@@ -409,56 +478,94 @@ async function generateTransactions(users: any[], bounties: any[]): Promise<void
   console.log("\n💳 Generating transactions...");
 
   let transactionCount = 0;
+  const userBalances = new Map<string, number>();
 
-  for (const bounty of bounties) {
-    if (bounty.status === "Completed" || Math.random() < 0.3) {
-      // Bounty reward transaction
-      const client = users.find(u => u._id.toString() === bounty.clientId.toString());
-      await Transaction.create({
-        userId: bounty.clientId,
-        bountyId: bounty._id,
-        type: "BountyReward",
-        amount: -bounty.rewardCredits,
-        balanceAfter: client ? client.credits - bounty.rewardCredits : 0,
-        description: `Payment for bounty: ${bounty.title}`,
-        createdAt: bounty.completedAt || randomPastDate(30),
-      });
-      transactionCount++;
+  // Initialize balances with a base amount
+  for (const user of users) {
+    const isDemoClient = user.email === 'client@demo.nexora.com' || user.email === 'master@demo.nexora.com';
+    const initialBalance = isDemoClient ? 100000 : 10000;
+    
+    userBalances.set(user._id.toString(), initialBalance);
+    
+    await Transaction.create({
+      userId: user._id,
+      type: "WelcomeBonus",
+      amount: initialBalance,
+      balanceAfter: initialBalance,
+      description: "Initial Nexora credits",
+      createdAt: user.joinedAt || randomPastDate(365),
+    });
+    transactionCount++;
+  }
 
-      if (bounty.assignedHunterIds && bounty.assignedHunterIds.length > 0) {
-        const rewardPerHunter = Math.floor(bounty.rewardCredits / bounty.assignedHunterIds.length);
-        for (const hunterId of bounty.assignedHunterIds) {
-          const hunter = users.find(u => u._id.toString() === hunterId.toString());
-          await Transaction.create({
-            userId: hunterId,
-            bountyId: bounty._id,
-            type: "BountyReward",
-            amount: rewardPerHunter,
-            balanceAfter: hunter ? hunter.credits + rewardPerHunter : rewardPerHunter,
-            description: `Reward for completing: ${bounty.title}`,
-            createdAt: bounty.completedAt || randomPastDate(30),
-          });
-          transactionCount++;
-        }
+  // Sort bounties by completion date to process transactions in order
+  const completedBounties = bounties
+    .filter(b => b.status === "Completed" && b.completedAt)
+    .sort((a, b) => a.completedAt.getTime() - b.completedAt.getTime());
+
+  for (const bounty of completedBounties) {
+    const clientId = bounty.clientId.toString();
+    const currentClientBalance = userBalances.get(clientId) || 0;
+    const newClientBalance = currentClientBalance - bounty.rewardCredits;
+    
+    // Client pays for bounty
+    await Transaction.create({
+      userId: bounty.clientId,
+      bountyId: bounty._id,
+      type: "BountyReward",
+      amount: -bounty.rewardCredits,
+      balanceAfter: newClientBalance,
+      description: `Payment for bounty: ${bounty.title}`,
+      createdAt: bounty.completedAt,
+    });
+    userBalances.set(clientId, newClientBalance);
+    transactionCount++;
+
+    // Hunters get paid
+    if (bounty.assignedHunterIds && bounty.assignedHunterIds.length > 0) {
+      const rewardPerHunter = Math.floor(bounty.rewardCredits / bounty.assignedHunterIds.length);
+      for (const hunterId of bounty.assignedHunterIds) {
+        const hId = hunterId.toString();
+        const currentHunterBalance = userBalances.get(hId) || 0;
+        const newHunterBalance = currentHunterBalance + rewardPerHunter;
+
+        await Transaction.create({
+          userId: hunterId,
+          bountyId: bounty._id,
+          type: "BountyReward",
+          amount: rewardPerHunter,
+          balanceAfter: newHunterBalance,
+          description: `Reward for completing: ${bounty.title}`,
+          createdAt: bounty.completedAt,
+        });
+        userBalances.set(hId, newHunterBalance);
+        transactionCount++;
       }
     }
   }
 
-  // Random deposits and withdrawals
-  for (let i = 0; i < 200; i++) {
+  // Some random transactions for flavor
+  for (let i = 0; i < 50; i++) {
     const user = randomElement(users);
     const type = randomElement(["Deposit", "Withdrawal"]);
-    const amount = randomInt(100, 5000);
+    const amount = randomInt(500, 2000);
+    const uId = user._id.toString();
+    const currentBalance = userBalances.get(uId) || 0;
+    
+    if (type === "Withdrawal" && currentBalance < amount) continue;
 
     const txAmount = type === "Deposit" ? amount : -amount;
+    const newBalance = currentBalance + txAmount;
+
     await Transaction.create({
       userId: user._id,
-      type: type === "Deposit" ? "WelcomeBonus" : "BountyStake",
+      type: type === "Deposit" ? "WelcomeBonus" : "BountyStake", // Reusing types or adding new ones
       amount: txAmount,
-      balanceAfter: user.credits + txAmount,
-      description: `${type} to wallet`,
-      createdAt: randomPastDate(180),
+      balanceAfter: newBalance,
+      description: `${type} of funds`,
+      createdAt: randomPastDate(30),
     });
+    userBalances.set(uId, newBalance);
     transactionCount++;
   }
 
@@ -509,7 +616,7 @@ async function generateActivities(users: any[], bounties: any[], guilds: any[]):
         await Activity.create({
           userId: user._id,
           type: "BountyPosted",
-          description: `Posted bounty: ${bounty.title}`,
+          description: `You published a new bounty: "${bounty.title}" in ${bounty.category}`,
           relatedBountyId: bounty._id,
           impactOnTrust: 1,
           impactOnCredits: -bounty.rewardCredits,
@@ -521,7 +628,7 @@ async function generateActivities(users: any[], bounties: any[], guilds: any[]):
           await Activity.create({
             userId: user._id,
             type: "BountyCompleted",
-            description: `Bounty completed: ${bounty.title}`,
+            description: `Bounty completed and reward released: "${bounty.title}"`,
             relatedBountyId: bounty._id,
             impactOnTrust: 2,
             impactOnCredits: 0,
@@ -530,12 +637,12 @@ async function generateActivities(users: any[], bounties: any[], guilds: any[]):
           activityCount++;
         }
       } else {
-        // Hunter accepted bounty
+        // Hunter activities
         if (bounty.acceptedAt) {
           await Activity.create({
             userId: user._id,
             type: "BountyAccepted",
-            description: `Accepted bounty: ${bounty.title}`,
+            description: `Joined the hunt for: "${bounty.title}"`,
             relatedBountyId: bounty._id,
             impactOnTrust: 0,
             impactOnCredits: 0,
@@ -549,11 +656,24 @@ async function generateActivities(users: any[], bounties: any[], guilds: any[]):
           await Activity.create({
             userId: user._id,
             type: "BountyCompleted",
-            description: `Completed bounty: ${bounty.title}`,
+            description: `Successfully completed mission: "${bounty.title}". Earned ${reward} credits.`,
             relatedBountyId: bounty._id,
-            impactOnTrust: randomInt(3, 7),
+            impactOnTrust: randomInt(5, 12),
             impactOnCredits: reward,
             createdAt: bounty.completedAt || randomPastDate(15),
+          });
+          activityCount++;
+        }
+        
+        if (bounty.status === "Disputed") {
+          await Activity.create({
+            userId: user._id,
+            type: "DisputeRaised",
+            description: `Dispute raised for: "${bounty.title}"`,
+            relatedBountyId: bounty._id,
+            impactOnTrust: -5,
+            impactOnCredits: 0,
+            createdAt: randomPastDate(3),
           });
           activityCount++;
         }
@@ -657,6 +777,119 @@ async function generateActivities(users: any[], bounties: any[], guilds: any[]):
 }
 
 /**
+ * Synchronize user and guild statistics based on actual records
+ */
+async function syncStats() {
+  console.log("\n🔄 Synchronizing statistics...");
+
+  const users = await User.find({});
+  for (const user of users) {
+    const userId = user._id;
+
+    // Calculate credits from transactions
+    const transactions = await Transaction.find({ userId });
+    const credits = transactions.reduce((sum, tx) => sum + tx.amount, 0);
+
+    // Calculate completed quests from bounties
+    const completedQuests = await Bounty.countDocuments({
+      assignedHunterIds: userId,
+      status: "Completed",
+    });
+
+    const totalBountiesHunter = await Bounty.countDocuments({
+      assignedHunterIds: userId,
+      status: { $in: ["Completed", "Failed"] },
+    });
+
+    // Success rate (0-100)
+    const successRate = totalBountiesHunter > 0 ? (completedQuests / totalBountiesHunter) * 100 : 70;
+
+    // Dispute stats
+    const disputesInvolved = await Dispute.countDocuments({
+      $or: [{ clientId: userId }, { guildId: user.guildId }],
+    });
+    const disputesWon = await Dispute.countDocuments({
+      $or: [
+        { clientId: userId, finalRuling: "ClientWins" },
+        { guildId: user.guildId, finalRuling: "GuildWins" },
+      ],
+    });
+    const disputeWinRate = disputesInvolved > 0 ? disputesWon / disputesInvolved : 0.5;
+
+    // Activity bonus
+    const activityCount = await Activity.countDocuments({ userId });
+    const activityBonus = Math.min(activityCount / 20, 1) * 100;
+
+    // Calculate Trust Score (0-100)
+    // Simplified version of the ranking utility
+    let trustScore = Math.round(
+      (successRate * 0.4) + 
+      (Math.min(completedQuests / 10, 1) * 20) + 
+      (disputeWinRate * 20) + 
+      (activityBonus * 0.2)
+    );
+
+    // Reputation is derived from trust and volume
+    const hunterReputation = completedQuests * 500 + trustScore * 15;
+    const clientReputation = await Bounty.countDocuments({ clientId: userId }) * 200;
+
+    // Determine Rank
+    let rank: 'Rookie' | 'Veteran' | 'Elite' | 'Master' | 'Legendary' = 'Rookie';
+    if (hunterReputation > 7000) rank = 'Legendary';
+    else if (hunterReputation > 4000) rank = 'Master';
+    else if (hunterReputation > 1500) rank = 'Elite';
+    else if (hunterReputation > 500) rank = 'Veteran';
+
+    // Calculate Active Quests
+    const activeQuests = await Bounty.countDocuments({
+      assignedHunterIds: userId,
+      status: { $in: ["InProgress", "UnderReview"] },
+    });
+
+    await User.findByIdAndUpdate(userId, {
+      credits,
+      completedQuests,
+      activeQuests,
+      trustScore: Math.min(trustScore, 100),
+      hunterReputation,
+      clientReputation,
+      rank,
+      lastActive: new Date(),
+    });
+  }
+
+  const guilds = await Guild.find({});
+  for (const guild of guilds) {
+    const guildId = guild._id;
+
+    const completedBounties = await Bounty.countDocuments({
+      acceptedByGuildId: guildId,
+      status: "Completed",
+    });
+
+    const totalBounties = await Bounty.countDocuments({
+      acceptedByGuildId: guildId,
+      status: { $in: ["Completed", "Failed", "Disputed"] },
+    });
+
+    const successRate = totalBounties > 0 ? (completedBounties / totalBounties) * 100 : 80;
+
+    // Total value cleared
+    const bounties = await Bounty.find({ acceptedByGuildId: guildId, status: "Completed" });
+    const totalValueCleared = bounties.reduce((sum, b) => sum + b.rewardCredits, 0);
+
+    await Guild.findByIdAndUpdate(guildId, {
+      totalBountiesCompleted: completedBounties,
+      successRate,
+      totalValueCleared,
+      trustScore: 70 + Math.min(completedBounties, 30),
+    });
+  }
+
+  console.log("✓ Statistics synchronized");
+}
+
+/**
  * Main seed function
  */
 async function seedDatabase() {
@@ -675,13 +908,22 @@ async function seedDatabase() {
     await generateTransactions(users, bounties);
     await generateActivities(users, bounties, guilds);
 
+    await syncStats();
+
     console.log("\n✅ Database seeding completed successfully!");
-    console.log("\n📝 Demo Account Credentials:");
-    console.log("─".repeat(50));
+    console.log("\n📝 Demo Account Credentials & Stats:");
+    console.log("─".repeat(80));
+    console.log(`${'Role'.padEnd(15)} | ${'Email'.padEnd(25)} | ${'Rank'.padEnd(10)} | ${'Rep'.padEnd(6)} | ${'Creds'.padEnd(6)} | ${'Quests'}`);
+    console.log("─".repeat(80));
+    
+    const finalUsers = await User.find({ email: { $in: DEMO_ACCOUNTS.map(a => a.email) } });
     for (const account of DEMO_ACCOUNTS) {
-      console.log(`${account.role.padEnd(20)} | ${account.email.padEnd(25)} | demo123`);
+      const u = finalUsers.find(user => user.email === account.email);
+      if (u) {
+        console.log(`${account.role.padEnd(15)} | ${account.email.padEnd(25)} | ${u.rank.padEnd(10)} | ${String(u.hunterReputation).padEnd(6)} | ${String(u.credits).padEnd(6)} | ${u.completedQuests}`);
+      }
     }
-    console.log("─".repeat(50));
+    console.log("─".repeat(80));
 
     console.log("\n📊 Summary:");
     console.log(`   Users: ${users.length}`);
